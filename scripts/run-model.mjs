@@ -56,15 +56,33 @@ const eventsFile = path.join(artifacts, 'session-events.jsonl')
 const stderrFile = path.join(artifacts, 'agent-stderr.log')
 let eventBuffer = ''
 let observedCost = 0
+let observedSteps = 0
 let budgetStopped = false
+let stepLimitStopped = false
+let hardStopScheduled = false
+const stopChild = (child) => {
+  if (!child || hardStopScheduled) return
+  hardStopScheduled = true
+  child.kill('SIGTERM')
+  setTimeout(() => child.kill('SIGKILL'), 5_000).unref()
+}
 const ingestEvent = (line, child) => {
   if (!line.trim()) return
   try {
     const event = JSON.parse(line)
     if (event.type === 'step_finish') observedCost += Number(event.part?.cost || 0)
+    if (event.type === 'step_finish') {
+      observedSteps += 1
+      if (!stepLimitStopped
+        && event.part?.reason !== 'stop'
+        && observedSteps >= manifest.harness.maxAgentSteps) {
+        stepLimitStopped = true
+        stopChild(child)
+      }
+    }
     if (!budgetStopped && observedCost > effectiveRunBudget) {
       budgetStopped = true
-      child?.kill('SIGTERM')
+      stopChild(child)
     }
   } catch {}
 }
@@ -92,6 +110,7 @@ const contradictoryIds = normalizedIds.filter((value) => value.startsWith(`${pro
 record.finishedAt = new Date().toISOString()
 record.elapsedMs = result.elapsedMs
 record.exitCode = result.code
+record.agentStepsObserved = observedSteps
 record.inputTokens = facts.inputTokens || null
 record.outputTokens = facts.outputTokens || null
 record.cachedTokens = facts.cachedTokens || null
@@ -102,8 +121,19 @@ record.resolvedCanonicalSlug = model.expectedCanonicalSlug
 record.routerMetadata = facts.routerMetadata
 record.commandsObserved = facts.commands
 record.toolNamesObserved = facts.toolNames
-record.status = budgetStopped ? 'failed' : result.timedOut ? 'timed-out' : contradictoryIds.length ? 'invalid' : result.code === 0 ? 'completed' : 'failed'
+record.status = budgetStopped
+  ? 'failed'
+  : stepLimitStopped
+    ? 'step-limited'
+    : result.timedOut
+      ? 'timed-out'
+      : contradictoryIds.length
+        ? 'invalid'
+        : result.code === 0
+          ? 'completed'
+          : 'failed'
 if (budgetStopped) record.notes.push(`Runner stopped after reported session cost exceeded the effective $${effectiveRunBudget.toFixed(2)} ceiling.`)
+if (stepLimitStopped) record.notes.push(`Runner enforced the frozen ${manifest.harness.maxAgentSteps}-step ceiling.`)
 if (contradictoryIds.length) record.notes.push(`Observed contradictory routed model identities: ${contradictoryIds.join(', ')}`)
 if (facts.cost === 0) record.notes.push('Gateway telemetry reported zero cost; verify the OpenRouter activity record before treating this run as valid.')
 if (!facts.providerRequestIds.length) record.notes.push('No provider request ID was exposed by the harness; retain session events and OpenRouter activity metadata for audit.')
@@ -114,6 +144,7 @@ console.log(JSON.stringify({
   status: record.status,
   elapsedMs: record.elapsedMs,
   reportedCostUsd: record.reportedCostUsd,
+  agentStepsObserved: record.agentStepsObserved,
   exitCode: record.exitCode,
 }, null, 2))
-if (record.status !== 'completed') process.exitCode = 1
+if (!['completed', 'step-limited'].includes(record.status)) process.exitCode = 1

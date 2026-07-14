@@ -1,5 +1,5 @@
 {
-  "calibratedAt": "2026-07-14T02:42:20.346Z",
+  "calibratedAt": "2026-07-14T05:23:59.975Z",
   "passed": true,
   "purpose": "Negative-control calibration: the deliberately incomplete starter must build but fail the core journey gates.",
   "checks": {
@@ -14,7 +14,7 @@
     "noInfrastructureFailure": true,
     "evaluatorReturnedNonZero": true
   },
-  "automatedScore": 23,
+  "automatedScore": 26,
   "failedChecks": [
     {
       "id": "F02A",
@@ -44,12 +44,6 @@
       "id": "F05",
       "title": "[F05|4][GATE] the native-select form has errors and deterministic success",
       "points": 4,
-      "gate": true
-    },
-    {
-      "id": "R01-tablet",
-      "title": "[R01-tablet|3][GATE] no horizontal overflow at 768px",
-      "points": 3,
       "gate": true
     },
     {

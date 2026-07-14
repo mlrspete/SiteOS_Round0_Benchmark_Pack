@@ -59,3 +59,5 @@ Use the frozen order in `benchmark/run-order.json` and the slugs in `benchmark/m
 - `artifacts/`, `runs/`, `review-packets/` — generated locally.
 
 See `METHODOLOGY.md` for validity rules and interpretation limits. See `benchmark/access-handoff.md` for the five-minute gateway setup.
+
+If recovering the first v1.0.2 execution, follow `RECOVERY_V1.0.3.md`. Do not score the original v1.0.2 evaluator summaries: Chromium lifecycle failures invalidated them.

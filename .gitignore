@@ -1,9 +1,11 @@
 node_modules/
 dist/
 runs/*/worktree/node_modules/
+runs/*/.opencode-state/
 runs/*/artifacts/screenshots/
 runs/*/artifacts/*.log
 runs/*/artifacts/*.jsonl
+invalid-runs/
 .env
 .env.*
 !.env.example

@@ -19,10 +19,12 @@ const checks = {
   starterBuilds: summary?.buildPassed === true,
   negativeControlFailsHardGate: summary?.hardGatePassed === false,
   negativeControlScoreBelow35: Number(summary?.automatedScore) < 35,
-  negativeControlMatchesReferenceScore: summary?.automatedScore === 23,
+  negativeControlMatchesReferenceScore: summary?.automatedScore === 26,
   missingCoreJourneysDetected: requiredGateFailures.every((id) => failedIds.has(id)),
   allScoredChecksExecuted: scoredChecks === 15,
-  noInfrastructureFailure: !failedIds.has('EVALUATOR') && summary?.automatedScore === 23,
+  noInfrastructureFailure: summary?.validEvaluation === true
+    && !failedIds.has('EVALUATOR')
+    && (summary?.infrastructureFailures?.length || 0) === 0,
   evaluatorReturnedNonZero: result.code !== 0,
 }
 const passed = Object.values(checks).every(Boolean)

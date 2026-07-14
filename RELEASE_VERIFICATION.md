@@ -1,21 +1,27 @@
 # Release verification
 
-Validated on 13 July 2026 before packaging. Version 1.0.2 incorporates operator qualification findings from 14 July 2026.
+Version 1.0.3 is the corrective recovery release produced after inspection of the first eight-model v1.0.2 execution on 14 July 2026.
 
-## Passed
+## Corrected defects
 
-- Root dependency lock installs with the pinned evaluator and OpenCode `1.17.18`.
-- Every JavaScript module passes Node syntax validation; all JSON manifests and schemas parse.
-- The starter installs, type-checks and builds from its committed lockfile.
-- The active eight-model manifest contains unique companies and routes, and preserves the six excluded candidates with explicit non-scored dispositions.
-- The ffmpeg evidence runtime is available.
-- Negative-control calibration executed all 15 scored checks without an infrastructure failure. The deliberately incomplete starter scored 23/60, failed the core journey gate as intended, and produced screenshots plus a 2.75-second interaction-evidence video.
-- Calibration requires the exact frozen 23/60 reference score, Linux/WSL setup documents Chromium runtime dependencies, and adapter probes explicitly require the final newline they validate.
-- All eight active routes passed 3/3 corrected adapter probes during cohort qualification. Three 2/3 routes and three failed routes were excluded rather than weakening the frozen reliability gate.
-- The release archive is checked for excluded dependencies, generated worktrees and credential material, then integrity-tested after creation.
+- Removes the local/serverless Chromium arguments that caused the browser to terminate between alternating Playwright tests.
+- Detects browser/runtime failures inside individual Playwright results and marks the entire evaluation invalid instead of scoring them as model failures.
+- Settles finite entrance animations before static functional, geometry, accessibility and screenshot inspection.
+- Keeps global structural accessibility analysis while limiting open-modal colour-contrast analysis to the visible dialog rather than the inert dimmed page behind it.
+- Changes the negative-control reference from the crash-masked 23/60 to the expected settled-runtime score of 26/60.
+- Enforces the 40-step limit in the runner. OpenCode's own maximum-step message remains useful, but a model can no longer ignore it and continue receiving tools.
+- Prevents manual finalization of invalid evaluator records or failed/provider-outage runs.
 
-## Deliberately pending for the operator
+## Verification completed
 
-Scored model runs are not executed in the release pack because no OpenRouter credential is embedded. Adapter records are local generated evidence and are also not embedded. A fresh operator must set the three budget variables and `OPENROUTER_API_KEY`, then run `npm run adapter:preflight -- --all --confirm-paid`; an existing qualified execution worktree can retain its eight verified local records. The run order cannot be frozen until all eight active three-probe records pass.
+- Every JavaScript module passes Node syntax validation.
+- Every JSON manifest and schema parses.
+- The release manifest contains eight active and six disclosed excluded candidates.
+- The task prompt and starter-directory hashes exactly match the frozen v1.0.2 experimental units; the corrective release changes the harness/evaluator, not the task received by models.
+- The corrected negative control completed all 15 scored checks with zero infrastructure failures and the expected 26/60 score.
+- All six preserved v1.0.2 model worktrees were re-evaluated without new inference; every evaluation completed all 15 checks with `validEvaluation: true` and zero infrastructure failures.
+- The release archive excludes dependencies, generated worktrees, credentials and execution artifacts and passes ZIP integrity validation.
 
-This pending state protects credentials and spend; it is the first documented execution step, not an unfinished implementation.
+## Operator verification required
+
+Repeat `npm ci` and `npm run calibrate` in the benchmark WSL environment after overlaying this release. Calibration must report `passed: true`, `automatedScore: 26`, `noInfrastructureFailure: true` and all 15 scored checks executed. Then follow `RECOVERY_V1.0.3.md`; six preserved model worktrees require evaluation only, while OpenAI and MiniMax require documented replacement runs.

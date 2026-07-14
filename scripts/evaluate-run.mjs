@@ -20,6 +20,20 @@ const screenshots = path.join(artifacts, 'screenshots')
 if (!await stat(worktree).catch(() => null)) throw new Error(`Missing run worktree: ${worktree}`)
 await mkdir(screenshots, { recursive: true })
 
+const infrastructurePattern = /Target page, context or browser has been closed|browser has been closed|Target closed|Failed to launch browser|Browser process exited|ECONNREFUSED/i
+
+async function settleUi(page) {
+  await page.waitForLoadState('networkidle').catch(() => {})
+  await page.evaluate(() => {
+    for (const animation of document.getAnimations()) {
+      const timing = animation.effect?.getComputedTiming()
+      if (!Number.isFinite(Number(timing?.endTime))) continue
+      try { animation.finish() } catch {}
+    }
+  })
+  await page.waitForTimeout(50)
+}
+
 const npmEnv = npmEnvironment()
 const install = await runProcess('npm', ['ci', '--ignore-scripts'], { cwd: worktree, env: npmEnv, timeoutMs: 180_000 })
 await writeFile(path.join(artifacts, 'npm-ci.log'), `${install.stdout}\n${install.stderr}`)
@@ -45,6 +59,8 @@ const summary = {
   efficiencyScore: null,
   totalScore: null,
   capped: false,
+  validEvaluation: true,
+  infrastructureFailures: [],
   evidenceWarnings: [],
 }
 
@@ -80,6 +96,7 @@ async function captureInteractionEvidence({ baseUrl, executablePath, chromiumArg
     ]) {
       await page.setViewportSize(viewport)
       await page.goto(baseUrl, { waitUntil: 'networkidle' })
+      await settleUi(page)
       await page.screenshot({ path: path.join(screenshots, `${viewport.name}.png`), fullPage: true })
     }
     await page.setViewportSize({ width: 1440, height: 1000 })
@@ -128,7 +145,8 @@ if (build.code === 0) {
     if (!ready) throw new Error('Preview did not become ready')
     const originalLdLibraryPath = process.env.LD_LIBRARY_PATH
     const { default: chromium } = await import('@sparticuz/chromium')
-    const chromiumArgs = chromium.args
+    const unstableLocalArgs = new Set(['--single-process', '--no-zygote', '--in-process-gpu'])
+    const chromiumArgs = chromium.args.filter((argument) => !unstableLocalArgs.has(argument))
     if (originalLdLibraryPath === undefined) delete process.env.LD_LIBRARY_PATH
     else process.env.LD_LIBRARY_PATH = originalLdLibraryPath
     const executablePath = await ensureChromiumExecutable()
@@ -160,6 +178,19 @@ if (build.code === 0) {
     }
     for (const suite of report.suites || []) collect(suite)
     for (const spec of specs) {
+      for (const test of spec.tests || []) {
+        for (const result of test.results || []) {
+          const messages = [result.error?.message, ...(result.errors || []).map((error) => error.message)].filter(Boolean)
+          for (const message of messages) {
+            if (infrastructurePattern.test(message)) {
+              summary.infrastructureFailures.push({ check: spec.title, message: message.split('\n')[0] })
+            }
+          }
+        }
+      }
+    }
+    summary.validEvaluation = summary.infrastructureFailures.length === 0
+    for (const spec of specs) {
       const match = spec.title.match(/^\[([^|\]]+)\|(\d+)\](\[GATE\])?/)
       if (!match) continue
       const [, id, pointsText, gateMarker] = match
@@ -170,12 +201,21 @@ if (build.code === 0) {
         summary.automatedScore += item.points
       } else summary.failedChecks.push(item)
     }
-    summary.journeyPassed = testRun.code === 0
-    summary.hardGatePassed = summary.buildPassed && !summary.failedChecks.some((check) => check.gate)
-    await captureInteractionEvidence({ baseUrl, executablePath, chromiumArgs }).catch((error) => {
-      summary.evidenceWarnings.push(`Interaction recording failed: ${error.message}`)
-    })
+    if (!summary.validEvaluation) {
+      summary.failedChecks.push({ id: 'EVALUATOR', title: `${summary.infrastructureFailures.length} browser/runtime failures invalidated this evaluation`, points: 0, gate: true })
+    }
+    summary.journeyPassed = summary.validEvaluation && testRun.code === 0
+    summary.hardGatePassed = summary.validEvaluation && summary.buildPassed && !summary.failedChecks.some((check) => check.gate)
+    if (summary.validEvaluation) {
+      await captureInteractionEvidence({ baseUrl, executablePath, chromiumArgs }).catch((error) => {
+        summary.evidenceWarnings.push(`Interaction recording failed: ${error.message}`)
+      })
+    } else {
+      summary.evidenceWarnings.push('Interaction evidence was not regenerated because the evaluator runtime was invalid.')
+    }
   } catch (error) {
+    summary.validEvaluation = false
+    summary.infrastructureFailures.push({ check: 'EVALUATOR', message: error.message })
     summary.failedChecks.push({ id: 'EVALUATOR', title: error.message, points: 0, gate: true })
   } finally {
     preview.kill('SIGTERM')

@@ -34,7 +34,12 @@ for (const row of rows) {
   if (row.total != null) rank += 1
   const minutes = Number.isFinite(row.record?.elapsedMs) ? (row.record.elapsedMs / 60_000).toFixed(1) : '—'
   const cost = Number.isFinite(row.record?.reportedCostUsd) ? row.record.reportedCostUsd.toFixed(4) : '—'
-  lines.push(`| ${row.total == null ? '—' : rank} | ${row.model.company} | ${row.model.model} | ${row.record?.status || 'not run'} | ${row.evaluation ? (row.evaluation.hardGatePassed ? 'pass' : 'fail') : '—'} | ${row.evaluation?.automatedScore ?? '—'} | ${row.evaluation?.manualVisualScore ?? '—'} | ${row.evaluation?.manualCodeScore ?? '—'} | ${row.evaluation?.verificationScore ?? '—'} | ${row.evaluation?.efficiencyScore ?? '—'} | ${minutes} | ${cost} | ${row.total ?? '—'} |`)
+  const evaluationStatus = row.evaluation?.validEvaluation === false
+    ? 'invalid'
+    : row.evaluation
+      ? (row.evaluation.hardGatePassed ? 'pass' : 'fail')
+      : '—'
+  lines.push(`| ${row.total == null ? '—' : rank} | ${row.model.company} | ${row.model.model} | ${row.record?.status || 'not run'} | ${evaluationStatus} | ${row.evaluation?.validEvaluation === false ? '—' : (row.evaluation?.automatedScore ?? '—')} | ${row.evaluation?.manualVisualScore ?? '—'} | ${row.evaluation?.manualCodeScore ?? '—'} | ${row.evaluation?.verificationScore ?? '—'} | ${row.evaluation?.efficiencyScore ?? '—'} | ${minutes} | ${cost} | ${row.total ?? '—'} |`)
 }
 lines.push(
   '',

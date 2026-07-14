@@ -66,6 +66,7 @@ const record = {
   cachedTokens: null,
   reportedCostUsd: null,
   exitCode: null,
+  agentStepsObserved: null,
   interventions: 0,
   notes: [],
 }

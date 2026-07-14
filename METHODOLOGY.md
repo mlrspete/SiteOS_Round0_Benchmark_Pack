@@ -16,7 +16,7 @@ Fixed controls:
 - OpenRouter route and expected canonical slug frozen in `benchmark/models.json`;
 - gateway fallbacks disabled and required tool parameters enforced;
 - documented high reasoning where the route supports it, otherwise the documented default;
-- 40 agent steps, 30 minutes, zero harness retries and zero human intervention;
+- a runner-enforced hard ceiling of 40 agent steps, a 30-minute wall-clock ceiling, zero harness retries and zero human intervention;
 - identical visible `npm run check` and `npm run build` commands;
 - one scored run after three successful unscored adapter probes.
 
@@ -57,9 +57,11 @@ Verification awards 2 points each for observed type-check and build commands, pl
 
 ## Calibration and invalidation
 
-`npm run calibrate` evaluates the deliberately incomplete starter. Calibration passes only when the starter installs/builds but the evaluator detects missing core journeys, fails the hard gate and produces an automated score below 35. This catches a permissive or broken evaluator before money is spent.
+`npm run calibrate` evaluates the deliberately incomplete starter. Calibration passes only when the starter installs/builds, all 15 scored checks execute without a browser/runtime failure, the evaluator detects the frozen missing core journeys, the hard gate fails and the automated score is exactly the 26/60 reference. This catches a permissive, overly strict or mechanically broken evaluator before money is spent.
 
-Invalidate rather than score a run when the prompt/starter differs, identity contradicts the freeze, a human intervenes, the harness retries, the time/budget stop fires, or required evidence is missing. Provider outages and harness failures are reported separately from model failures.
+Invalidate rather than score a run when the prompt/starter differs, identity contradicts the freeze, a human intervenes, the harness retries, or required evidence is missing. A hard step/time/budget stop retains the work produced at the ceiling and is scored with its stop status disclosed. Provider outages and evaluator/harness failures are reported separately from model failures and may receive one documented replacement experimental unit; they are never scored as model-quality failures.
+
+Static screenshots and functional assertions inspect the settled end state of finite entrance transitions. Reduced-motion behaviour is tested separately. Accessibility checks do not treat temporarily translucent entrance text or an inert, dimmed page behind an open modal as the final contrast state.
 
 ## Advancement
 
