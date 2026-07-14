@@ -1,0 +1,25 @@
+{
+  "name": "siteos-round0-benchmark",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reproducible model-only Round 0 benchmark for the SiteOS vertical slice.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "preflight": "node scripts/preflight.mjs",
+    "freeze:order": "node scripts/freeze-run-order.mjs",
+    "prepare:run": "node scripts/prepare-run.mjs",
+    "run:model": "node scripts/run-model.mjs",
+    "evaluate": "node scripts/evaluate-run.mjs",
+    "score": "node scripts/finalize-score.mjs",
+    "report": "node scripts/build-report.mjs"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.61.1",
+    "@sparticuz/chromium": "143.0.4",
+    "opencode-ai": "1.17.18"
+  }
+}

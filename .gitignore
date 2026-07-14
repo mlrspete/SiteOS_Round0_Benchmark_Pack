@@ -1,0 +1,15 @@
+node_modules/
+dist/
+runs/*/worktree/node_modules/
+runs/*/artifacts/screenshots/
+runs/*/artifacts/*.log
+runs/*/artifacts/*.jsonl
+.env
+.env.*
+!.env.example
+test-results/
+artifacts/preflight-status.json
+artifacts/starter-calibration/
+artifacts/adapter-smoke-*/
+artifacts/blinding-map.json
+review-bundle/

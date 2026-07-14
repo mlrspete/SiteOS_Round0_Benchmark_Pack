@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-07-13T00:00:00+10:00",
+  "harness": {
+    "name": "OpenCode",
+    "version": "1.17.18",
+    "mode": "pure",
+    "wallClockMinutes": 45,
+    "reasoningPolicy": "strongest standard public high-reasoning variant; exact value frozen after adapter preflight"
+  },
+  "models": [
+    {"order": 1, "slug": "openai-gpt-5-6-sol", "company": "OpenAI", "model": "GPT-5.6 Sol", "requestedModelId": "gpt-5.6-sol", "harnessModel": null, "variant": null, "credentialEnv": "OPENAI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 2, "slug": "anthropic-claude-fable-5", "company": "Anthropic", "model": "Claude Fable 5", "requestedModelId": "claude-fable-5", "harnessModel": null, "variant": null, "credentialEnv": "ANTHROPIC_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 3, "slug": "google-gemini-3-1-pro-preview", "company": "Google", "model": "Gemini 3.1 Pro Preview", "requestedModelId": "gemini-3.1-pro-preview", "harnessModel": null, "variant": null, "credentialEnv": "GEMINI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 4, "slug": "xai-grok-4-5", "company": "xAI / SpaceXAI", "model": "Grok 4.5", "requestedModelId": "grok-4.5", "harnessModel": null, "variant": null, "credentialEnv": "XAI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 5, "slug": "moonshot-kimi-k2-7-code", "company": "Moonshot AI", "model": "Kimi K2.7 Code", "requestedModelId": "kimi-k2.7-code", "harnessModel": null, "variant": null, "credentialEnv": "MOONSHOT_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 6, "slug": "deepseek-v4-pro", "company": "DeepSeek", "model": "DeepSeek V4 Pro", "requestedModelId": "deepseek-v4-pro", "harnessModel": null, "variant": null, "credentialEnv": "DEEPSEEK_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 7, "slug": "zai-glm-5-2", "company": "Z.ai / Zhipu AI", "model": "GLM-5.2", "requestedModelId": "glm-5.2", "harnessModel": null, "variant": null, "credentialEnv": "ZAI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 8, "slug": "alibaba-qwen3-7-max", "company": "Alibaba Cloud / Qwen", "model": "Qwen3.7-Max", "requestedModelId": "qwen3.7-max", "harnessModel": null, "variant": null, "credentialEnv": "DASHSCOPE_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 9, "slug": "minimax-m3", "company": "MiniMax", "model": "MiniMax-M3", "requestedModelId": "MiniMax-M3", "harnessModel": null, "variant": null, "credentialEnv": "MINIMAX_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 10, "slug": "xiaomi-mimo-v2-5-pro", "company": "Xiaomi MiMo", "model": "MiMo-V2.5-Pro", "requestedModelId": "mimo-v2.5-pro", "harnessModel": null, "variant": null, "credentialEnv": "MIMO_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
+    {"order": 11, "slug": "mistral-devstral-2", "company": "Mistral AI", "model": "Devstral 2", "requestedModelId": "devstral-2512", "harnessModel": null, "variant": null, "credentialEnv": "MISTRAL_API_KEY", "cohort": "former-reserve", "adapterStatus": "unverified"},
+    {"order": 12, "slug": "stepfun-step-3-7-flash", "company": "StepFun", "model": "Step 3.7 Flash", "requestedModelId": "step-3.7-flash", "harnessModel": null, "variant": null, "credentialEnv": "STEPFUN_API_KEY", "cohort": "former-reserve", "adapterStatus": "unverified"},
+    {"order": 13, "slug": "meta-muse-spark-1-1", "company": "Meta", "model": "Muse Spark 1.1", "requestedModelId": "muse-spark-1.1", "harnessModel": null, "variant": null, "credentialEnv": "META_API_KEY", "cohort": "former-reserve", "adapterStatus": "unverified"},
+    {"order": 14, "slug": "nvidia-nemotron-3-ultra", "company": "NVIDIA", "model": "Nemotron 3 Ultra", "requestedModelId": "nvidia/nemotron-3-ultra-550b-a55b", "harnessModel": "opencode/nemotron-3-ultra-free", "variant": null, "credentialEnv": null, "cohort": "former-reserve", "adapterStatus": "preflight-partial-stream-error"}
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SiteOS Round 0 run record",
+  "type": "object",
+  "required": ["runId", "modelSlug", "requestedModelId", "startedAt", "status", "promptSha256", "starterSha256"],
+  "properties": {
+    "runId": {"type": "string"},
+    "modelSlug": {"type": "string"},
+    "requestedModelId": {"type": ["string", "null"]},
+    "resolvedModelId": {"type": ["string", "null"]},
+    "providerRequestId": {"type": ["string", "null"]},
+    "startedAt": {"type": "string"},
+    "finishedAt": {"type": ["string", "null"]},
+    "status": {"enum": ["prepared", "running", "completed", "failed", "timed-out", "invalid"]},
+    "promptSha256": {"type": "string"},
+    "starterSha256": {"type": "string"},
+    "elapsedMs": {"type": ["integer", "null"]},
+    "inputTokens": {"type": ["integer", "null"]},
+    "outputTokens": {"type": ["integer", "null"]},
+    "cachedTokens": {"type": ["integer", "null"]},
+    "reportedCostUsd": {"type": ["number", "null"]},
+    "exitCode": {"type": ["integer", "null"]},
+    "interventions": {"type": "integer", "minimum": 0},
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}
