@@ -7,7 +7,7 @@
     "runId": {"type": "string"},
     "modelSlug": {"type": "string"},
     "candidateCode": {"type": "string", "pattern": "^C-[0-9]{4}$"},
-    "runPosition": {"type": "integer", "minimum": 1, "maximum": 14},
+    "runPosition": {"type": "integer", "minimum": 1, "maximum": 8},
     "gateway": {"const": "OpenRouter"},
     "requestedModelId": {"type": "string"},
     "expectedCanonicalSlug": {"type": "string"},

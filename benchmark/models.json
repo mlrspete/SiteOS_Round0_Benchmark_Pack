@@ -2,6 +2,7 @@
   "schemaVersion": 2,
   "frozenAt": "2026-07-13T00:00:00+10:00",
   "catalogCheckedAt": "2026-07-13T17:30:00+10:00",
+  "qualifiedAt": "2026-07-14T13:10:00+10:00",
   "gateway": {
     "name": "OpenRouter",
     "credentialEnv": "OPENROUTER_API_KEY",
@@ -17,6 +18,69 @@
     "wallClockMinutes": 30,
     "maxAgentSteps": 40,
     "reasoningPolicy": "documented public high effort where supported; otherwise the model's documented default"
+  },
+  "qualification": {
+    "originalCandidateCount": 14,
+    "activeCount": 8,
+    "requiredProbePasses": 3,
+    "probeAttempts": 3,
+    "policy": "Only routes that passed all three corrected adapter probes advance to the ranked Round 0 cohort. Partial passes are excluded rather than relaxing the frozen reliability gate.",
+    "excludedModels": [
+      {
+        "originalOrder": 3,
+        "slug": "google-gemini-3-1-pro-preview",
+        "company": "Google",
+        "model": "Gemini 3.1 Pro Preview",
+        "probeResult": "0/3",
+        "disposition": "route-incompatible",
+        "reason": "The exact OpenRouter/OpenCode request returned no compatible endpoint for the required parameters. This is not a scored coding-quality result."
+      },
+      {
+        "originalOrder": 6,
+        "slug": "deepseek-v4-pro",
+        "company": "DeepSeek",
+        "model": "DeepSeek V4 Pro",
+        "probeResult": "2/3",
+        "disposition": "adapter-unstable",
+        "reason": "Two of three corrected adapter probes passed; the route did not meet the frozen three-of-three reliability gate. This is not a scored coding-quality result."
+      },
+      {
+        "originalOrder": 8,
+        "slug": "alibaba-qwen3-7-max",
+        "company": "Alibaba Cloud / Qwen",
+        "model": "Qwen3.7-Max",
+        "probeResult": "2/3",
+        "disposition": "adapter-unstable",
+        "reason": "Two of three corrected adapter probes passed; the route did not meet the frozen three-of-three reliability gate. This is not a scored coding-quality result."
+      },
+      {
+        "originalOrder": 11,
+        "slug": "mistral-devstral-2",
+        "company": "Mistral AI",
+        "model": "Devstral 2 2512",
+        "probeResult": "0/3",
+        "disposition": "provider-error",
+        "reason": "The qualification attempts returned provider/server errors. This is not a scored coding-quality result."
+      },
+      {
+        "originalOrder": 12,
+        "slug": "stepfun-step-3-7-flash",
+        "company": "StepFun",
+        "model": "Step 3.7 Flash",
+        "probeResult": "2/3",
+        "disposition": "adapter-unstable",
+        "reason": "Two of three corrected adapter probes passed; the route did not meet the frozen three-of-three reliability gate. This is not a scored coding-quality result."
+      },
+      {
+        "originalOrder": 14,
+        "slug": "nvidia-nemotron-3-ultra",
+        "company": "NVIDIA",
+        "model": "Nemotron 3 Ultra",
+        "probeResult": "0/3",
+        "disposition": "adapter-incompatible",
+        "reason": "None of the three corrected adapter probes passed. This is not a scored coding-quality result."
+      }
+    ]
   },
   "models": [
     {
@@ -45,18 +109,6 @@
     },
     {
       "order": 3,
-      "slug": "google-gemini-3-1-pro-preview",
-      "company": "Google",
-      "model": "Gemini 3.1 Pro Preview",
-      "openRouterModelId": "google/gemini-3.1-pro-preview",
-      "expectedCanonicalSlug": "google/gemini-3.1-pro-preview-20260219",
-      "harnessModel": "openrouter/google/gemini-3.1-pro-preview",
-      "variant": "high",
-      "cohort": "primary",
-      "substitution": null
-    },
-    {
-      "order": 4,
       "slug": "xai-grok-4-5",
       "company": "xAI / SpaceXAI",
       "model": "Grok 4.5",
@@ -68,7 +120,7 @@
       "substitution": null
     },
     {
-      "order": 5,
+      "order": 4,
       "slug": "moonshot-kimi-k2-7-code",
       "company": "Moonshot AI",
       "model": "Kimi K2.7 Code",
@@ -80,19 +132,7 @@
       "substitution": null
     },
     {
-      "order": 6,
-      "slug": "deepseek-v4-pro",
-      "company": "DeepSeek",
-      "model": "DeepSeek V4 Pro",
-      "openRouterModelId": "deepseek/deepseek-v4-pro",
-      "expectedCanonicalSlug": "deepseek/deepseek-v4-pro-20260423",
-      "harnessModel": "openrouter/deepseek/deepseek-v4-pro",
-      "variant": "high",
-      "cohort": "primary",
-      "substitution": null
-    },
-    {
-      "order": 7,
+      "order": 5,
       "slug": "zai-glm-5-2",
       "company": "Z.ai / Zhipu AI",
       "model": "GLM-5.2",
@@ -104,19 +144,7 @@
       "substitution": null
     },
     {
-      "order": 8,
-      "slug": "alibaba-qwen3-7-max",
-      "company": "Alibaba Cloud / Qwen",
-      "model": "Qwen3.7-Max",
-      "openRouterModelId": "qwen/qwen3.7-max",
-      "expectedCanonicalSlug": "qwen/qwen3.7-max-20260520",
-      "harnessModel": "openrouter/qwen/qwen3.7-max",
-      "variant": null,
-      "cohort": "primary",
-      "substitution": null
-    },
-    {
-      "order": 9,
+      "order": 6,
       "slug": "minimax-m3",
       "company": "MiniMax",
       "model": "MiniMax-M3",
@@ -128,7 +156,7 @@
       "substitution": null
     },
     {
-      "order": 10,
+      "order": 7,
       "slug": "xiaomi-mimo-v2-5-pro",
       "company": "Xiaomi MiMo",
       "model": "MiMo-V2.5-Pro",
@@ -140,31 +168,7 @@
       "substitution": null
     },
     {
-      "order": 11,
-      "slug": "mistral-devstral-2",
-      "company": "Mistral AI",
-      "model": "Devstral 2 2512",
-      "openRouterModelId": "mistralai/devstral-2512",
-      "expectedCanonicalSlug": "mistralai/devstral-2512",
-      "harnessModel": "openrouter/mistralai/devstral-2512",
-      "variant": null,
-      "cohort": "former-reserve",
-      "substitution": null
-    },
-    {
-      "order": 12,
-      "slug": "stepfun-step-3-7-flash",
-      "company": "StepFun",
-      "model": "Step 3.7 Flash",
-      "openRouterModelId": "stepfun/step-3.7-flash",
-      "expectedCanonicalSlug": "stepfun/step-3.7-flash-20260528",
-      "harnessModel": "openrouter/stepfun/step-3.7-flash",
-      "variant": "high",
-      "cohort": "former-reserve",
-      "substitution": null
-    },
-    {
-      "order": 13,
+      "order": 8,
       "slug": "meta-llama-4-maverick",
       "company": "Meta",
       "model": "Llama 4 Maverick",
@@ -177,18 +181,6 @@
         "replaces": "Muse Spark 1.1",
         "reason": "Muse Spark 1.1 was not listed by the live OpenRouter Models API at the gateway freeze; Llama 4 Maverick is the strongest tool-capable Meta route currently listed."
       }
-    },
-    {
-      "order": 14,
-      "slug": "nvidia-nemotron-3-ultra",
-      "company": "NVIDIA",
-      "model": "Nemotron 3 Ultra",
-      "openRouterModelId": "nvidia/nemotron-3-ultra-550b-a55b",
-      "expectedCanonicalSlug": "nvidia/nemotron-3-ultra-550b-a55b-20260604",
-      "harnessModel": "openrouter/nvidia/nemotron-3-ultra-550b-a55b",
-      "variant": "high",
-      "cohort": "former-reserve",
-      "substitution": null
     }
   ]
 }

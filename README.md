@@ -1,8 +1,8 @@
 # SiteOS Round 0 benchmark pack
 
-This pack compares 14 coding models from 14 companies on one small, production-shaped website slice. Every entrant runs through the same pinned OpenCode harness and OpenRouter gateway with the same starter, prompt, tools, step limit, 30-minute ceiling and evaluator.
+This pack compares eight adapter-qualified coding models from eight companies on one small, production-shaped website slice. They advanced from an original 14-company candidate pool by passing the same three-of-three OpenRouter/OpenCode adapter gate. Every ranked entrant then runs through the same pinned harness and gateway with the same starter, prompt, tools, step limit, 30-minute ceiling and evaluator.
 
-Round 0 answers a narrow question: **which models are the strongest base candidates for the later SiteOS stack tests?** It does not compare native coding products, specification systems, image models or the complete SiteOS workflow.
+Round 0 answers a narrow question: **which reliably runnable models are the strongest base candidates for the later SiteOS stack tests?** It does not compare native coding products, specification systems, image models or the complete SiteOS workflow. The six excluded candidates remain disclosed in `benchmark/models.json`; their adapter outcomes are not scored as coding-quality losses.
 
 ## What is tested
 

@@ -8,13 +8,13 @@ npm run adapter:preflight -- --all --confirm-paid
 
 For each model, the script checks the live OpenRouter route, canonical slug, tool parameters and expiry, then performs three isolated five-minute probes through the exact scored OpenCode route/variant. Every probe must write an explicitly specified final-newline-delimited file in the current directory, successfully verify it with the shell, exit cleanly and retain usage/identity metadata.
 
-Successful records are written to `artifacts/adapters/<model-slug>.json`. The run order cannot be frozen until all 14 records are verified. Use `--model <slug>` for a single route and `--force` only when deliberately repeating an existing verified adapter.
+Successful records are written to `artifacts/adapters/<model-slug>.json`. The run order cannot be frozen until all eight active records are verified. Use `--model <slug>` for a single route and `--force` only when deliberately repeating an existing verified adapter.
 
 The gateway policy disables provider fallbacks and requires declared tool parameters. OpenRouter routing metadata is requested and retained when exposed by the harness. If the returned identity conflicts with the frozen route, mark the model not testable and investigate; do not substitute it during the run.
 
 ## Frozen cohort note
 
-The live OpenRouter Models API was checked on 13 July 2026. Muse Spark 1.1 was absent, so the disclosed Meta entrant is Llama 4 Maverick. This substitution is frozen before testing and is not described as a Muse result.
+The live OpenRouter Models API was checked on 13 July 2026. The original 14 candidates were then subjected to the same three-probe gate. Eight routes passed 3/3 and form the ranked cohort. DeepSeek V4 Pro, Qwen3.7-Max and Step 3.7 Flash each passed 2/3 but were excluded rather than weakening the reliability gate. Gemini 3.1 Pro Preview, Devstral 2 and Nemotron 3 Ultra were excluded for route/provider/adapter failures. These are qualification outcomes, not scored coding-quality results. Muse Spark 1.1 was absent, so the disclosed Meta entrant is Llama 4 Maverick.
 
 Catalogue, routing and usage references:
 

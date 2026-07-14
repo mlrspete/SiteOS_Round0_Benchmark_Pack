@@ -24,14 +24,14 @@ Session events, prompt/starter hashes, requested and observed identity metadata,
 
 ## Cohort and gateway preflight
 
-All 14 entries are equal Round 0 entrants. “Former reserve” is provenance only. Before order is frozen, each route must:
+Fourteen candidates from fourteen companies entered adapter qualification. Only the eight routes that passed all three corrected probes advance as equal ranked Round 0 entrants. “Former reserve” is provenance only. Before order is frozen, each active route must:
 
 1. exist in the live OpenRouter catalogue with the expected canonical slug;
 2. advertise `tools` and `tool_choice` support;
 3. complete three isolated file-edit plus shell probes;
 4. run with fallback disabled and the same provider-parameter policy used for scoring.
 
-Failure is reported as not testable. It is never silently replaced. The only pre-freeze substitution is disclosed: Meta Llama 4 Maverick replaces Muse Spark 1.1 because Muse was absent from the live OpenRouter catalogue.
+Failure is reported as not testable. It is never silently replaced. A 2/3 result is insufficient because intermittent tool execution would confound the scored run; the gate is not relaxed after observing results. DeepSeek V4 Pro, Qwen3.7-Max and Step 3.7 Flash were therefore excluded as adapter-unstable. Gemini 3.1 Pro Preview, Devstral 2 and Nemotron 3 Ultra were excluded for route/provider/adapter failures. These exclusions measure benchmark compatibility and reliability, not coding quality. The only pre-freeze substitution is disclosed: Meta Llama 4 Maverick replaces Muse Spark 1.1 because Muse was absent from the live OpenRouter catalogue.
 
 ## Gates
 

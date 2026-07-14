@@ -6,7 +6,7 @@ Use one dedicated OpenRouter API key with an account-level spending limit. Keep 
 
 ```text
 OPENROUTER_API_KEY=<secret>
-SITEOS_TOTAL_BUDGET_USD=75
+SITEOS_TOTAL_BUDGET_USD=85
 SITEOS_PER_RUN_BUDGET_USD=10
 SITEOS_PREFLIGHT_BUDGET_USD=5
 ```
@@ -26,7 +26,7 @@ The defaults are authorization ceilings, not expected spend. The benchmark runne
 
 1. `npm run preflight` validates the pack and current OpenRouter catalog.
 2. `npm run adapter:preflight -- --all --confirm-paid` performs three tiny isolated edit/shell/stream probes for every model.
-3. `npm run freeze:order` refuses to randomize until all 14 adapters have passed.
+3. `npm run freeze:order` refuses to randomize until all eight active adapters have passed.
 4. Any catalog revision, alias resolution, missing tool support or unknown returned model invalidates that entrant until reviewed.
 
-Meta Muse Spark 1.1 was not listed by OpenRouter at the gateway freeze. The manifest transparently substitutes Meta Llama 4 Maverick so the single-gateway cohort remains runnable; reports retain this disclosure.
+The original 14 candidates underwent a strict three-of-three adapter qualification. Eight advanced to the ranked cohort. The remaining six are retained in the manifest as disclosed route, provider or adapter exclusions; none is treated as a coding-quality loss. Meta Muse Spark 1.1 was not listed by OpenRouter at the gateway freeze, so the manifest transparently substitutes Meta Llama 4 Maverick.

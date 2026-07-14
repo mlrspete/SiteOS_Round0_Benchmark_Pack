@@ -40,7 +40,17 @@ lines.push(
   '',
   '## Cohort disclosure',
   '',
-  'Meta Muse Spark 1.1 was replaced before the freeze because it was absent from the live OpenRouter model catalogue. Meta Llama 4 Maverick is the disclosed Meta entrant; it is not presented as the same model.',
+  `The original ${manifest.qualification.originalCandidateCount} candidates were filtered by a frozen ${manifest.qualification.requiredProbePasses}/${manifest.qualification.probeAttempts} adapter gate. These ${manifest.qualification.excludedModels.length} candidates did not enter the ranked benchmark; their outcomes are compatibility/reliability findings, not coding-quality scores.`,
+  '',
+  '| Company | Model | Probe result | Disposition |',
+  '|---|---|---:|---|',
+)
+for (const excluded of manifest.qualification.excludedModels) {
+  lines.push(`| ${excluded.company} | ${excluded.model} | ${excluded.probeResult} | ${excluded.disposition} |`)
+}
+lines.push(
+  '',
+  'Meta Muse Spark 1.1 was replaced before the original freeze because it was absent from the live OpenRouter model catalogue. Meta Llama 4 Maverick is the disclosed Meta entrant; it is not presented as the same model.',
   '',
   '## Advancement',
   '',

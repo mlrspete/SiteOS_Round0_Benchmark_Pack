@@ -22,9 +22,21 @@ const errors = []
 const warnings = []
 
 if (manifest.schemaVersion !== 2) errors.push(`Expected manifest schemaVersion 2, found ${manifest.schemaVersion}`)
-if (manifest.models.length !== 14) errors.push(`Expected 14 models, found ${manifest.models.length}`)
-if (new Set(manifest.models.map((model) => model.slug)).size !== 14) errors.push('Model slugs are not unique')
-if (new Set(manifest.models.map((model) => model.company)).size !== 14) errors.push('The cohort must contain 14 different companies')
+const qualification = manifest.qualification || {}
+const excludedModels = qualification.excludedModels || []
+const expectedActiveCount = qualification.activeCount
+if (!Number.isInteger(expectedActiveCount) || manifest.models.length !== expectedActiveCount) {
+  errors.push(`Expected ${expectedActiveCount ?? 'a declared number of'} active models, found ${manifest.models.length}`)
+}
+if (new Set(manifest.models.map((model) => model.slug)).size !== manifest.models.length) errors.push('Active model slugs are not unique')
+if (new Set(manifest.models.map((model) => model.company)).size !== manifest.models.length) errors.push('The active cohort must contain different companies')
+if (qualification.requiredProbePasses !== 3 || qualification.probeAttempts !== 3) errors.push('Expected a frozen three-of-three adapter qualification gate')
+if (qualification.originalCandidateCount !== manifest.models.length + excludedModels.length) {
+  errors.push('Original candidate count does not equal active plus excluded models')
+}
+if (new Set([...manifest.models, ...excludedModels].map((model) => model.slug)).size !== qualification.originalCandidateCount) {
+  errors.push('Candidate slugs are not unique across active and excluded models')
+}
 for (const model of manifest.models) {
   for (const field of ['slug', 'company', 'model', 'openRouterModelId', 'expectedCanonicalSlug', 'harnessModel']) {
     if (!model[field]) errors.push(`${model.slug || 'unknown model'} is missing ${field}`)

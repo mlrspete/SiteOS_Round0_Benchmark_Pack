@@ -1,8 +1,8 @@
 {
   "name": "siteos-round0-benchmark",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
-  "description": "Reproducible 14-model SiteOS Round 0 benchmark through OpenRouter.",
+  "description": "Reproducible eight-model qualified SiteOS Round 0 benchmark through OpenRouter.",
   "type": "module",
   "engines": {
     "node": ">=22"
