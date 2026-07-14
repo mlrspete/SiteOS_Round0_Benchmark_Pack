@@ -6,7 +6,7 @@ Run this after the local pack and negative-control calibration pass, and before 
 npm run adapter:preflight -- --all --confirm-paid
 ```
 
-For each model, the script checks the live OpenRouter route, canonical slug, tool parameters and expiry, then performs three isolated five-minute probes through the exact scored OpenCode route/variant. Every probe must edit an exact file, use the shell to verify it, exit cleanly and retain usage/identity metadata.
+For each model, the script checks the live OpenRouter route, canonical slug, tool parameters and expiry, then performs three isolated five-minute probes through the exact scored OpenCode route/variant. Every probe must write an explicitly specified final-newline-delimited file in the current directory, successfully verify it with the shell, exit cleanly and retain usage/identity metadata.
 
 Successful records are written to `artifacts/adapters/<model-slug>.json`. The run order cannot be frozen until all 14 records are verified. Use `--model <slug>` for a single route and `--force` only when deliberately repeating an existing verified adapter.
 

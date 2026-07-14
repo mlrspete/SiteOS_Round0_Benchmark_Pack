@@ -14,6 +14,7 @@ Scoring is 60 points automated and 40 points independently reviewed/objective. A
 
 - Node.js 22 or newer;
 - ffmpeg available on `PATH` for deterministic interaction-video evidence;
+- Chromium's Linux runtime libraries when using Linux/WSL (`npx playwright install-deps chromium` after `npm ci`);
 - one OpenRouter API key with access to all cohort routes;
 - enough OpenRouter credit and an account-level spend limit;
 - two reviewers who can review anonymized packets independently.
@@ -24,6 +25,7 @@ Copy `.env.example` values into your shell or an untracked `.env` file. Never co
 
 ```bash
 npm ci
+npx playwright install-deps chromium # Linux/WSL only
 npm run preflight
 npm run calibrate
 npm run adapter:preflight -- --all --confirm-paid

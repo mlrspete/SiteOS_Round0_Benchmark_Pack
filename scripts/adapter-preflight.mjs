@@ -10,6 +10,7 @@ import {
   isolatedOpenCodeEnv,
   modelManifest,
   parseArgs,
+  recordedAdapterSpendUsd,
   readJson,
   recordedSpendUsd,
   root,
@@ -41,11 +42,14 @@ for (const model of selected) {
 await mkdir(adapterDir, { recursive: true })
 let preflightSpend = 0
 const startingSpend = await recordedSpendUsd()
+const startingPreflightSpend = await recordedAdapterSpendUsd()
 if (startingSpend >= totalBudget) throw new Error(`Total budget is already exhausted: $${startingSpend.toFixed(4)} recorded.`)
+if (startingPreflightSpend >= preflightBudget) throw new Error(`Adapter preflight budget is already exhausted: $${startingPreflightSpend.toFixed(4)} recorded.`)
 const opencode = path.join(root, 'node_modules', '.bin', 'opencode')
 
 for (const model of selected) {
   const existing = await stat(adapterStatusFile(model.slug)).then(() => readJson(adapterStatusFile(model.slug))).catch(() => null)
+  const historicalCost = Number(existing?.reportedCostUsd || 0)
   if (!args.force && adapterIsVerified(model, existing)) {
     console.log(`${model.slug}: already verified (use --force to repeat)`)
     continue
@@ -54,7 +58,7 @@ for (const model of selected) {
   if (args.force) await rm(probeRoot, { recursive: true, force: true })
   const attempts = []
   for (let attempt = 1; attempt <= 3; attempt += 1) {
-    if (preflightSpend >= preflightBudget) throw new Error(`Adapter preflight budget exhausted at $${preflightSpend.toFixed(4)}.`)
+    if (startingPreflightSpend + preflightSpend >= preflightBudget) throw new Error(`Adapter preflight budget exhausted at $${(startingPreflightSpend + preflightSpend).toFixed(4)}.`)
     if (startingSpend + preflightSpend >= totalBudget) throw new Error(`Total benchmark budget exhausted at $${(startingSpend + preflightSpend).toFixed(4)}.`)
     const worktree = path.join(probeRoot, `attempt-${attempt}`)
     await rm(worktree, { recursive: true, force: true })
@@ -65,8 +69,8 @@ for (const model of selected) {
     const expected = `SITEOS_ADAPTER_OK\nprobe-${attempt}\n`
     const prompt = [
       `This is adapter probe ${attempt} of 3.`,
-      `Create a file named probe-result.txt with exactly these two lines: SITEOS_ADAPTER_OK and probe-${attempt}.`,
-      'Use a file-editing tool to create it. Then use the shell tool to run: node -e "const fs=require(\'fs\');if(fs.readFileSync(\'probe-result.txt\',\'utf8\')!==process.env.EXPECTED)process.exit(1)"',
+      `In the current working directory, create probe-result.txt with exactly these bytes: SITEOS_ADAPTER_OK\\nprobe-${attempt}\\n. The final newline after probe-${attempt} is required.`,
+      'Use a file-editing tool to create it. Do not use an absolute path. Then use the shell tool to run: node -e "const fs=require(\'fs\');if(fs.readFileSync(\'probe-result.txt\',\'utf8\')!==process.env.EXPECTED)process.exit(1)". If that command fails, correct the file and rerun it before replying.',
       'Do not edit any other file. Reply with only: complete',
     ].join(' ')
     const commandArgs = [
@@ -84,7 +88,9 @@ for (const model of selected) {
     preflightSpend += facts.cost
     const actual = await readFile(path.join(worktree, 'probe-result.txt'), 'utf8').catch(() => null)
     const usedShell = facts.commands.some((command) => command.includes('probe-result.txt'))
-    const passed = result.code === 0 && !result.timedOut && actual === expected && usedShell
+    const verificationShells = facts.shellCommands.filter((entry) => entry.command.includes('probe-result.txt'))
+    const shellSucceeded = verificationShells.some((entry) => entry.exitCode === 0)
+    const passed = result.code === 0 && !result.timedOut && actual === expected && usedShell && shellSucceeded
     await writeFile(path.join(worktree, 'session-events.jsonl'), result.stdout)
     await writeFile(path.join(worktree, 'agent-stderr.log'), result.stderr)
     attempts.push({
@@ -95,6 +101,7 @@ for (const model of selected) {
       elapsedMs: result.elapsedMs,
       exactFile: actual === expected,
       shellObserved: usedShell,
+      shellSucceeded,
       reportedCostUsd: facts.cost,
       inputTokens: facts.inputTokens,
       outputTokens: facts.outputTokens,
@@ -117,7 +124,8 @@ for (const model of selected) {
     variant: model.variant,
     gatewayPolicy: { allowFallbacks: false, requireParameters: true },
     catalogObserved: catalogChecks.get(model.slug).observed,
-    reportedCostUsd: attempts.reduce((sum, attempt) => sum + attempt.reportedCostUsd, 0),
+    reportedCostUsd: historicalCost + attempts.reduce((sum, attempt) => sum + attempt.reportedCostUsd, 0),
+    currentProbeCostUsd: attempts.reduce((sum, attempt) => sum + attempt.reportedCostUsd, 0),
     attempts,
   }
   await writeJson(adapterStatusFile(model.slug), record)

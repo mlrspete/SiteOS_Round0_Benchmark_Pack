@@ -1,5 +1,5 @@
 {
-  "calibratedAt": "2026-07-13T10:54:36.836Z",
+  "calibratedAt": "2026-07-14T02:42:20.346Z",
   "passed": true,
   "purpose": "Negative-control calibration: the deliberately incomplete starter must build but fail the core journey gates.",
   "checks": {
@@ -8,6 +8,7 @@
     "starterBuilds": true,
     "negativeControlFailsHardGate": true,
     "negativeControlScoreBelow35": true,
+    "negativeControlMatchesReferenceScore": true,
     "missingCoreJourneysDetected": true,
     "allScoredChecksExecuted": true,
     "noInfrastructureFailure": true,

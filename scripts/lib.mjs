@@ -97,7 +97,8 @@ export function adapterIsVerified(model, status) {
     && status?.attemptsRequired === 3
     && status?.openRouterModelId === model.openRouterModelId
     && status?.expectedCanonicalSlug === model.expectedCanonicalSlug
-    && status?.harnessModel === model.harnessModel,
+    && status?.harnessModel === model.harnessModel
+    && (status?.variant ?? null) === (model.variant ?? null)
   )
 }
 
@@ -145,6 +146,12 @@ export async function recordedSpendUsd() {
     const record = await readJson(path.join(runsDir, entry.name, 'artifacts', 'run-record.json')).catch(() => null)
     if (Number.isFinite(record?.reportedCostUsd)) total += record.reportedCostUsd
   }
+  total += await recordedAdapterSpendUsd()
+  return total
+}
+
+export async function recordedAdapterSpendUsd() {
+  let total = 0
   for (const entry of await readdir(adapterDir, { withFileTypes: true }).catch(() => [])) {
     if (!entry.isFile() || !entry.name.endsWith('.json')) continue
     const record = await readJson(path.join(adapterDir, entry.name)).catch(() => null)
@@ -164,6 +171,7 @@ export function extractEventFacts(output) {
     providerRequestIds: [],
     resolvedModelIds: [],
     routerMetadata: [],
+    shellCommands: [],
   }
   const visit = (value, key = '') => {
     if (Array.isArray(value)) {
@@ -179,6 +187,12 @@ export function extractEventFacts(output) {
     }
     if (typeof value.tool === 'string') facts.toolNames.push(value.tool)
     if (typeof value.command === 'string') facts.commands.push(value.command)
+    if (value.tool === 'bash' && typeof value.state?.input?.command === 'string') {
+      facts.shellCommands.push({
+        command: value.state.input.command,
+        exitCode: Number.isInteger(value.state?.metadata?.exit) ? value.state.metadata.exit : null,
+      })
+    }
     for (const [childKey, child] of Object.entries(value)) {
       const normalized = childKey.toLowerCase()
       if (typeof child === 'string' && ['request_id', 'requestid', 'provider_request_id'].includes(normalized)) facts.providerRequestIds.push(child)

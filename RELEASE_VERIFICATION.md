@@ -1,6 +1,6 @@
 # Release verification
 
-Validated on 13 July 2026 before packaging.
+Validated on 13 July 2026 before packaging. Version 1.0.1 incorporates operator preflight findings from 14 July 2026.
 
 ## Passed
 
@@ -10,6 +10,7 @@ Validated on 13 July 2026 before packaging.
 - All 14 frozen OpenRouter routes are present in the live catalogue, match the expected canonical slugs and declare `tools` plus `tool_choice` support.
 - The ffmpeg evidence runtime is available.
 - Negative-control calibration executed all 15 scored checks without an infrastructure failure. The deliberately incomplete starter scored 23/60, failed the core journey gate as intended, and produced screenshots plus a 2.75-second interaction-evidence video.
+- Calibration now requires the exact frozen 23/60 reference score, Linux/WSL setup documents Chromium runtime dependencies, and adapter probes explicitly require the final newline they validate.
 - The release archive is checked for excluded dependencies, generated worktrees and credential material, then integrity-tested after creation.
 
 ## Deliberately pending for the operator
