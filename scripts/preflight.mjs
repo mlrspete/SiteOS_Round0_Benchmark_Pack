@@ -1,25 +1,38 @@
 import path from 'node:path'
 import { access } from 'node:fs/promises'
 import {
+  adapterIsVerified,
+  artifactsDir,
   benchmarkDir,
+  fetchOpenRouterCatalog,
   modelManifest,
+  npmEnvironment,
+  readAdapterStatus,
   root,
   runProcess,
-  npmEnvironment,
   sha256Directory,
   sha256File,
   starterDir,
+  validateCatalogModel,
   writeJson,
 } from './lib.mjs'
 
 const manifest = await modelManifest()
 const errors = []
+const warnings = []
 
+if (manifest.schemaVersion !== 2) errors.push(`Expected manifest schemaVersion 2, found ${manifest.schemaVersion}`)
 if (manifest.models.length !== 14) errors.push(`Expected 14 models, found ${manifest.models.length}`)
-const slugs = new Set(manifest.models.map((model) => model.slug))
-if (slugs.size !== 14) errors.push('Model slugs are not unique')
+if (new Set(manifest.models.map((model) => model.slug)).size !== 14) errors.push('Model slugs are not unique')
+if (new Set(manifest.models.map((model) => model.company)).size !== 14) errors.push('The cohort must contain 14 different companies')
+for (const model of manifest.models) {
+  for (const field of ['slug', 'company', 'model', 'openRouterModelId', 'expectedCanonicalSlug', 'harnessModel']) {
+    if (!model[field]) errors.push(`${model.slug || 'unknown model'} is missing ${field}`)
+  }
+  if (model.harnessModel !== `openrouter/${model.openRouterModelId}`) errors.push(`${model.slug} has a mismatched OpenCode route`)
+}
 
-for (const required of ['package.json', 'package-lock.json', 'PRODUCT_CONTRACT.md', 'AGENTS.md', 'opencode.json']) {
+for (const required of ['package.json', 'package-lock.json', 'PRODUCT_CONTRACT.md', 'AGENTS.md', 'PROGRESS.md', 'opencode.json']) {
   await access(path.join(starterDir, required)).catch(() => errors.push(`Missing app-starter/${required}`))
 }
 
@@ -52,35 +65,67 @@ const starterBuild = starterCheck.code === 0
   ? await runProcess('npm', ['run', 'build'], { cwd: starterDir, env: npmEnvironment(), timeoutMs: 180_000 })
   : { code: null }
 if (starterBuild.code !== 0) errors.push('Starter production build failed')
+const ffmpeg = await runProcess('ffmpeg', ['-version'], { timeoutMs: 10_000 })
+if (ffmpeg.code !== 0) errors.push('ffmpeg is required to encode blinded interaction evidence. Install ffmpeg and rerun preflight.')
 
-const models = manifest.models.map((model) => ({
-  slug: model.slug,
-  company: model.company,
-  requestedModelId: model.requestedModelId,
-  harnessModel: model.harnessModel,
-  adapterStatus: model.adapterStatus,
-  credentialEnv: model.credentialEnv,
-  credentialPresent: model.credentialEnv ? Boolean(process.env[model.credentialEnv]) : true,
-  runnable: Boolean(model.adapterStatus === 'verified' && model.harnessModel && (!model.credentialEnv || process.env[model.credentialEnv])),
-}))
+let catalog = null
+let catalogError = null
+try {
+  catalog = await fetchOpenRouterCatalog()
+} catch (error) {
+  catalogError = error.message
+  warnings.push(`Live OpenRouter catalog was not reachable: ${error.message}`)
+}
 
+const models = []
+for (const model of manifest.models) {
+  const adapter = await readAdapterStatus(model.slug)
+  const catalogCheck = catalog ? validateCatalogModel(model, catalog) : { route: null, problems: ['Catalog not checked'], observed: null }
+  if (catalog && catalogCheck.problems.length) warnings.push(`${model.slug}: ${catalogCheck.problems.join('; ')}`)
+  models.push({
+    slug: model.slug,
+    company: model.company,
+    openRouterModelId: model.openRouterModelId,
+    expectedCanonicalSlug: model.expectedCanonicalSlug,
+    harnessModel: model.harnessModel,
+    catalogValid: Boolean(catalogCheck.route && catalogCheck.problems.length === 0),
+    catalogObserved: catalogCheck.observed || null,
+    adapterStatus: adapter?.status || 'not-run',
+    adapterVerified: adapterIsVerified(model, adapter),
+  })
+}
+
+const gatewayReady = Boolean(process.env.OPENROUTER_API_KEY)
+  && Boolean(catalog)
+  && models.every((model) => model.catalogValid)
+const adaptersReady = models.every((model) => model.adapterVerified)
 const report = {
   checkedAt: new Date().toISOString(),
   validPack: errors.length === 0,
+  round0Ready: errors.length === 0 && gatewayReady && adaptersReady,
   errors,
+  warnings,
   harness: { expected: manifest.harness.version, actual: version.stdout.trim() },
   starterValidation: {
     installPassed: starterInstall.code === 0,
     checkPassed: starterCheck.code === 0,
     buildPassed: starterBuild.code === 0,
   },
+  evidenceRuntime: { ffmpegAvailable: ffmpeg.code === 0 },
   promptSha256: await sha256File(path.join(benchmarkDir, 'task-prompt.md')),
   starterSha256: await sha256Directory(starterDir),
-  budgetConfigured: Boolean(process.env.SITEOS_TOTAL_BUDGET_USD),
-  runnableModels: models.filter((model) => model.runnable).length,
+  gateway: {
+    name: 'OpenRouter',
+    credentialPresent: Boolean(process.env.OPENROUTER_API_KEY),
+    catalogChecked: Boolean(catalog),
+    catalogError,
+    ready: gatewayReady,
+  },
+  budgetConfigured: Boolean(process.env.SITEOS_TOTAL_BUDGET_USD && process.env.SITEOS_PER_RUN_BUDGET_USD),
+  verifiedAdapters: models.filter((model) => model.adapterVerified).length,
   models,
 }
 
-await writeJson(path.join(root, 'artifacts', 'preflight-status.json'), report)
+await writeJson(path.join(artifactsDir, 'preflight-status.json'), report)
 console.log(JSON.stringify(report, null, 2))
 if (errors.length) process.exitCode = 1

@@ -1,0 +1,74 @@
+{
+  "calibratedAt": "2026-07-13T10:54:36.836Z",
+  "passed": true,
+  "purpose": "Negative-control calibration: the deliberately incomplete starter must build but fail the core journey gates.",
+  "checks": {
+    "evaluatorProducedSummary": true,
+    "starterInstalls": true,
+    "starterBuilds": true,
+    "negativeControlFailsHardGate": true,
+    "negativeControlScoreBelow35": true,
+    "missingCoreJourneysDetected": true,
+    "allScoredChecksExecuted": true,
+    "noInfrastructureFailure": true,
+    "evaluatorReturnedNonZero": true
+  },
+  "automatedScore": 23,
+  "failedChecks": [
+    {
+      "id": "F02A",
+      "title": "[F02A|6][GATE] filtering controls cards, URL state and direct loading",
+      "points": 6,
+      "gate": true
+    },
+    {
+      "id": "F02B",
+      "title": "[F02B|2] browser back and forward restore filter state",
+      "points": 2,
+      "gate": false
+    },
+    {
+      "id": "F03",
+      "title": "[F03|4][GATE] a keyboard-operable service button reveals supplied detail",
+      "points": 4,
+      "gate": true
+    },
+    {
+      "id": "F04",
+      "title": "[F04|4][GATE] dialog traps focus, closes with Escape and returns focus",
+      "points": 4,
+      "gate": true
+    },
+    {
+      "id": "F05",
+      "title": "[F05|4][GATE] the native-select form has errors and deterministic success",
+      "points": 4,
+      "gate": true
+    },
+    {
+      "id": "R01-tablet",
+      "title": "[R01-tablet|3][GATE] no horizontal overflow at 768px",
+      "points": 3,
+      "gate": true
+    },
+    {
+      "id": "R02",
+      "title": "[R02|5] long copy is not clamped or clipped and missing media has a fallback",
+      "points": 5,
+      "gate": false
+    },
+    {
+      "id": "R04",
+      "title": "[R04|5] mobile navigation is present and keyboard usable",
+      "points": 5,
+      "gate": false
+    },
+    {
+      "id": "A02",
+      "title": "[A02|4][GATE] whole page remains accessible while the modal is open",
+      "points": 4,
+      "gate": true
+    }
+  ],
+  "evaluatorExitCode": 1
+}

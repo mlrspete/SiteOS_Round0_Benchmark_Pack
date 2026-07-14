@@ -1,74 +1,68 @@
 # Round 0 methodology
 
-## Question
+## Research question
 
-Which model is the best base candidate for SiteOS when asked to implement one realistic, intentionally designed website vertical slice through an otherwise identical neutral coding-agent harness?
+Which model is the best base candidate for SiteOS when implementing one realistic, intentionally designed website vertical slice through an identical neutral harness?
 
-The result is a ranking for this task under these conditions, not a universal ranking of intelligence or software-engineering quality.
+The result applies to this task, cohort, gateway and date. OpenRouter makes the comparison practical and consistent, but it is still a gateway-mediated test—not proof of how each model performs in every native agent product.
 
-## Experimental unit
+## Experimental unit and fixed controls
 
-One fresh agent session receives a clean copy of `app-starter/` and the exact bytes of `benchmark/task-prompt.md`. It may read and edit the worktree and run local shell commands. It has no browser-search, image-generation, MCP, external memory, native-agent skills, hidden evaluator or cross-run context.
+One fresh session receives a clean copy of `app-starter/` and the exact bytes of `benchmark/task-prompt.md`. It may edit the worktree and run local commands. It cannot browse, generate images, call MCP tools, read the evaluator, use external memory or see another run.
 
-Frozen controls:
+Fixed controls:
 
-- Node.js major version and operating environment;
-- OpenCode `1.17.18` in pure mode;
-- repository and lockfile checksums;
-- prompt checksum;
-- one standard high reasoning variant where the provider exposes it;
-- 45-minute wall-clock ceiling;
-- one uninterrupted attempt with no human intervention;
-- identical visible verification commands;
-- temperature/provider sampling defaults unless the provider supports a documented deterministic setting that works across all entrants.
+- Node.js 22+, OpenCode `1.17.18`, pure mode and the committed lockfiles;
+- OpenRouter route and expected canonical slug frozen in `benchmark/models.json`;
+- gateway fallbacks disabled and required tool parameters enforced;
+- documented high reasoning where the route supports it, otherwise the documented default;
+- 40 agent steps, 30 minutes, zero harness retries and zero human intervention;
+- identical visible `npm run check` and `npm run build` commands;
+- one scored run after three successful unscored adapter probes.
 
-Every invocation records model ID, provider, timestamps, exit state, prompt/repository hashes, session events, token usage, cost, retries, tool calls, file diff and evaluator output. A provider-side alias, fallback or unknown model revision invalidates the run.
+Session events, prompt/starter hashes, requested and observed identity metadata, token usage, cost, elapsed time, commands, output, screenshots, interaction video and evaluator results are retained. A contradictory routed model identity invalidates the run.
 
-## Cohort
+## Cohort and gateway preflight
 
-All 14 entries in `benchmark/models.json` are intended to run. The former “reserve” label is retained only as provenance; it does not change scoring or conditions.
+All 14 entries are equal Round 0 entrants. “Former reserve” is provenance only. Before order is frozen, each route must:
 
-Before execution, every entry must pass a small unscored adapter preflight for streaming, multi-turn tool use, file editing, shell use, output length and exact model identity. Failure is reported as `not testable`; it is not silently replaced.
+1. exist in the live OpenRouter catalogue with the expected canonical slug;
+2. advertise `tools` and `tool_choice` support;
+3. complete three isolated file-edit plus shell probes;
+4. run with fallback disabled and the same provider-parameter policy used for scoring.
+
+Failure is reported as not testable. It is never silently replaced. The only pre-freeze substitution is disclosed: Meta Llama 4 Maverick replaces Muse Spark 1.1 because Muse was absent from the live OpenRouter catalogue.
 
 ## Gates
 
-A submission is ineligible for the visual-craft ranking if any of these occur:
+A submission is ineligible for the craft ranking if dependency installation or production build fails, the root page is blank/wrong, a core filter/detail/enquiry journey fails, material horizontal overflow exists, keyboard access to the enquiry flow is blocked, or serious/critical automated accessibility violations remain.
 
-1. dependency installation or production build fails;
-2. `/` is blank, an error page or the wrong route;
-3. the core filter, detail or enquiry journey cannot complete;
-4. the page has material horizontal overflow at a required width;
-5. keyboard access to the enquiry flow is blocked;
-6. serious or critical automated accessibility violations remain.
-
-The failure remains in the table with its diagnostics, time and cost. This prevents attractive screenshots from masking broken software.
+The result stays in the table with diagnostics, time and cost. Any hard-gate failure caps the total at 49.
 
 ## Score (100)
 
 | Dimension | Points | Evidence |
 |---|---:|---|
-| Functional correctness | 25 | Automated user journeys, URL state, validation and state transitions |
-| Responsive/content resilience | 20 | 360/768/1440 geometry, long title, missing media and overflow checks |
-| Accessibility | 15 | Keyboard journey, focus behaviour, semantics, reduced motion and axe |
-| Visual craft and intentionality | 20 | Blind two-reviewer screenshot rubric; median score |
-| Code quality | 10 | Blind review of structure, maintainability, unnecessary complexity and errors |
-| Verification discipline | 5 | Commands/tests actually run and truthful progress evidence |
-| Operational efficiency | 5 | Completion, intervention-free reliability, elapsed time and normalized cost |
+| Functional correctness | 25 | Automated journeys, URL state, validation and state transitions |
+| Responsive/content resilience | 20 | 360/768/1440 geometry, long copy, local/missing media and mobile navigation |
+| Accessibility | 15 | Keyboard, focus containment/return, semantics, reduced motion and axe |
+| Visual craft | 20 | Two blind reviews of screenshots and interaction video |
+| Code quality | 10 | Two blind reviews of the anonymized diff |
+| Verification discipline | 5 | Objectively observed check/build commands and truthful progress evidence |
+| Operational efficiency | 5 | Intervention-free completion, clean exit, elapsed time and fixed cost bands |
 
-Automated checks produce 60 points. Reviewers score anonymized candidates identified only by random codes. Reviewers do not see company, model, cost or transcript. A third reviewer resolves any dimension differing by more than four points.
+The first 60 points are deterministic evaluator checks. Manual scores use the median (the average when there are two). A third reviewer is mandatory when the first two visual totals differ by more than 4 or code totals by more than 3. Reviewers receive candidate-coded packets only and must not see identity, transcript, cost or run order.
 
-Operational efficiency is used as a tiebreak-sensitive component, not as a licence for a cheap but broken result to win. A hard-gate failure caps the overall score at 49.
+Verification awards 2 points each for observed type-check and build commands, plus 1 for matching checked items and command evidence in `PROGRESS.md`. Efficiency awards 2 for completion without intervention, 1 for 20 minutes or less (0.5 for 20–30), 1 for a clean exit, and 1 for reported cost up to $5 (0.5 up to $10).
 
-## Repetition and advancement
+## Calibration and invalidation
 
-Round 0 is a breadth screen: one scored run per model after an unscored adapter preflight. Because a single sample has high variance, the top five eligible models plus any model within three points of fifth place advance to Round 1. Round 1 uses three blinded repetitions with rotated order. No “champion” claim is made from Round 0 alone.
+`npm run calibrate` evaluates the deliberately incomplete starter. Calibration passes only when the starter installs/builds but the evaluator detects missing core journeys, fails the hard gate and produces an automated score below 35. This catches a permissive or broken evaluator before money is spent.
 
-## Interpretation controls
+Invalidate rather than score a run when the prompt/starter differs, identity contradicts the freeze, a human intervenes, the harness retries, the time/budget stop fires, or required evidence is missing. Provider outages and harness failures are reported separately from model failures.
 
-- Prompt and starter are published after the freeze so results are reproducible.
-- Model order is randomized after all preflights pass.
-- Provider outages, quota errors and harness faults are distinguished from model failures.
-- Native Codex, Claude Code, Gemini CLI and Copilot are a later product/harness test.
-- OpenSpec, Spec Kit, tracer bullets, deep modules, visual generators and component catalogues are later controlled interventions run on the champion set.
-- Image models are benchmarked separately because giving only some coding models generated assets would confound the comparison.
+## Advancement
 
+Round 0 is a one-sample breadth screen. The top five gate-eligible models plus any eligible model within three points of fifth advance. Round 1 uses three blinded repetitions with rotated order. No definitive champion claim is made from Round 0 alone.
+
+Native Codex, Claude Code, Gemini CLI and Copilot; OpenSpec/Spec Kit; tracer bullets/deep modules; Storybook/component catalogues; and Higgsfield/image models remain later controlled interventions on the champion cohort.

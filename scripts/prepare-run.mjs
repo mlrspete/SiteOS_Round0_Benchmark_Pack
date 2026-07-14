@@ -2,9 +2,12 @@ import path from 'node:path'
 import { mkdir, readFile } from 'node:fs/promises'
 import {
   benchmarkDir,
+  adapterIsVerified,
   copyStarter,
   getModel,
   parseArgs,
+  readAdapterStatus,
+  readJson,
   root,
   sha256Directory,
   sha256File,
@@ -18,6 +21,12 @@ const args = parseArgs()
 if (!args.model) throw new Error('Usage: npm run prepare:run -- --model <slug>')
 
 const { model } = await getModel(args.model)
+const adapter = await readAdapterStatus(model.slug)
+if (!adapterIsVerified(model, adapter)) throw new Error(`Adapter for ${model.slug} is not verified. Run adapter:preflight first.`)
+const runOrder = await readJson(path.join(benchmarkDir, 'run-order.json')).catch(() => null)
+if (!runOrder) throw new Error('Run order is not frozen. Execute npm run freeze:order after all adapter preflights pass.')
+const orderEntry = runOrder.order.find((entry) => entry.slug === model.slug)
+if (!orderEntry) throw new Error(`${model.slug} is absent from the frozen run order.`)
 const runRoot = path.join(root, 'runs', model.slug)
 const worktree = path.join(runRoot, 'worktree')
 const artifacts = path.join(runRoot, 'artifacts')
@@ -35,10 +44,18 @@ const prompt = await readFile(path.join(benchmarkDir, 'task-prompt.md'), 'utf8')
 const record = {
   runId: model.slug,
   modelSlug: model.slug,
-  requestedModelId: model.requestedModelId,
+  candidateCode: orderEntry.candidateCode,
+  runPosition: orderEntry.position,
+  gateway: 'OpenRouter',
+  requestedModelId: model.openRouterModelId,
+  expectedCanonicalSlug: model.expectedCanonicalSlug,
+  harnessModel: model.harnessModel,
+  variant: model.variant,
   resolvedModelId: null,
+  resolvedCanonicalSlug: null,
   providerRequestId: null,
-  startedAt: new Date().toISOString(),
+  routerMetadata: [],
+  startedAt: null,
   finishedAt: null,
   status: 'prepared',
   promptSha256: await sha256File(path.join(benchmarkDir, 'task-prompt.md')),

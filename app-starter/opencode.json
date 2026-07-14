@@ -2,6 +2,33 @@
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": false,
   "share": "disabled",
+  "enabled_providers": ["openrouter"],
+  "provider": {
+    "openrouter": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 60000,
+        "headers": {
+          "X-OpenRouter-Metadata": "enabled",
+          "X-Title": "SiteOS Round 0 Benchmark"
+        }
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "steps": 40,
+      "options": {
+        "provider": {
+          "allow_fallbacks": false,
+          "require_parameters": true
+        },
+        "usage": {
+          "include": true
+        }
+      }
+    }
+  },
   "permission": {
     "read": "allow",
     "edit": "allow",

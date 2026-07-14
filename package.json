@@ -1,18 +1,23 @@
 {
   "name": "siteos-round0-benchmark",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Reproducible model-only Round 0 benchmark for the SiteOS vertical slice.",
+  "description": "Reproducible 14-model SiteOS Round 0 benchmark through OpenRouter.",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "preflight": "node scripts/preflight.mjs",
+    "adapter:preflight": "node scripts/adapter-preflight.mjs",
     "freeze:order": "node scripts/freeze-run-order.mjs",
     "prepare:run": "node scripts/prepare-run.mjs",
     "run:model": "node scripts/run-model.mjs",
+    "run:round0": "node scripts/run-round0.mjs",
     "evaluate": "node scripts/evaluate-run.mjs",
+    "calibrate": "node scripts/calibrate.mjs",
+    "review:packet": "node scripts/build-review-packet.mjs",
+    "review:record": "node scripts/record-review.mjs",
     "score": "node scripts/finalize-score.mjs",
     "report": "node scripts/build-report.mjs"
   },
@@ -20,6 +25,7 @@
     "@axe-core/playwright": "4.12.1",
     "@playwright/test": "1.61.1",
     "@sparticuz/chromium": "143.0.4",
-    "opencode-ai": "1.17.18"
+    "opencode-ai": "1.17.18",
+    "tar-fs": "3.1.3"
   }
 }

@@ -1,27 +1,194 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "frozenAt": "2026-07-13T00:00:00+10:00",
+  "catalogCheckedAt": "2026-07-13T17:30:00+10:00",
+  "gateway": {
+    "name": "OpenRouter",
+    "credentialEnv": "OPENROUTER_API_KEY",
+    "modelFallbacks": false,
+    "requireParameters": true,
+    "routing": "OpenRouter Auto Exacto for tool-calling requests; actual routing metadata retained",
+    "catalogUrl": "https://openrouter.ai/api/v1/models"
+  },
   "harness": {
     "name": "OpenCode",
     "version": "1.17.18",
     "mode": "pure",
-    "wallClockMinutes": 45,
-    "reasoningPolicy": "strongest standard public high-reasoning variant; exact value frozen after adapter preflight"
+    "wallClockMinutes": 30,
+    "maxAgentSteps": 40,
+    "reasoningPolicy": "documented public high effort where supported; otherwise the model's documented default"
   },
   "models": [
-    {"order": 1, "slug": "openai-gpt-5-6-sol", "company": "OpenAI", "model": "GPT-5.6 Sol", "requestedModelId": "gpt-5.6-sol", "harnessModel": null, "variant": null, "credentialEnv": "OPENAI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 2, "slug": "anthropic-claude-fable-5", "company": "Anthropic", "model": "Claude Fable 5", "requestedModelId": "claude-fable-5", "harnessModel": null, "variant": null, "credentialEnv": "ANTHROPIC_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 3, "slug": "google-gemini-3-1-pro-preview", "company": "Google", "model": "Gemini 3.1 Pro Preview", "requestedModelId": "gemini-3.1-pro-preview", "harnessModel": null, "variant": null, "credentialEnv": "GEMINI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 4, "slug": "xai-grok-4-5", "company": "xAI / SpaceXAI", "model": "Grok 4.5", "requestedModelId": "grok-4.5", "harnessModel": null, "variant": null, "credentialEnv": "XAI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 5, "slug": "moonshot-kimi-k2-7-code", "company": "Moonshot AI", "model": "Kimi K2.7 Code", "requestedModelId": "kimi-k2.7-code", "harnessModel": null, "variant": null, "credentialEnv": "MOONSHOT_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 6, "slug": "deepseek-v4-pro", "company": "DeepSeek", "model": "DeepSeek V4 Pro", "requestedModelId": "deepseek-v4-pro", "harnessModel": null, "variant": null, "credentialEnv": "DEEPSEEK_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 7, "slug": "zai-glm-5-2", "company": "Z.ai / Zhipu AI", "model": "GLM-5.2", "requestedModelId": "glm-5.2", "harnessModel": null, "variant": null, "credentialEnv": "ZAI_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 8, "slug": "alibaba-qwen3-7-max", "company": "Alibaba Cloud / Qwen", "model": "Qwen3.7-Max", "requestedModelId": "qwen3.7-max", "harnessModel": null, "variant": null, "credentialEnv": "DASHSCOPE_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 9, "slug": "minimax-m3", "company": "MiniMax", "model": "MiniMax-M3", "requestedModelId": "MiniMax-M3", "harnessModel": null, "variant": null, "credentialEnv": "MINIMAX_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 10, "slug": "xiaomi-mimo-v2-5-pro", "company": "Xiaomi MiMo", "model": "MiMo-V2.5-Pro", "requestedModelId": "mimo-v2.5-pro", "harnessModel": null, "variant": null, "credentialEnv": "MIMO_API_KEY", "cohort": "primary", "adapterStatus": "unverified"},
-    {"order": 11, "slug": "mistral-devstral-2", "company": "Mistral AI", "model": "Devstral 2", "requestedModelId": "devstral-2512", "harnessModel": null, "variant": null, "credentialEnv": "MISTRAL_API_KEY", "cohort": "former-reserve", "adapterStatus": "unverified"},
-    {"order": 12, "slug": "stepfun-step-3-7-flash", "company": "StepFun", "model": "Step 3.7 Flash", "requestedModelId": "step-3.7-flash", "harnessModel": null, "variant": null, "credentialEnv": "STEPFUN_API_KEY", "cohort": "former-reserve", "adapterStatus": "unverified"},
-    {"order": 13, "slug": "meta-muse-spark-1-1", "company": "Meta", "model": "Muse Spark 1.1", "requestedModelId": "muse-spark-1.1", "harnessModel": null, "variant": null, "credentialEnv": "META_API_KEY", "cohort": "former-reserve", "adapterStatus": "unverified"},
-    {"order": 14, "slug": "nvidia-nemotron-3-ultra", "company": "NVIDIA", "model": "Nemotron 3 Ultra", "requestedModelId": "nvidia/nemotron-3-ultra-550b-a55b", "harnessModel": "opencode/nemotron-3-ultra-free", "variant": null, "credentialEnv": null, "cohort": "former-reserve", "adapterStatus": "preflight-partial-stream-error"}
+    {
+      "order": 1,
+      "slug": "openai-gpt-5-6-sol",
+      "company": "OpenAI",
+      "model": "GPT-5.6 Sol",
+      "openRouterModelId": "openai/gpt-5.6-sol",
+      "expectedCanonicalSlug": "openai/gpt-5.6-sol-20260709",
+      "harnessModel": "openrouter/openai/gpt-5.6-sol",
+      "variant": "high",
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 2,
+      "slug": "anthropic-claude-fable-5",
+      "company": "Anthropic",
+      "model": "Claude Fable 5",
+      "openRouterModelId": "anthropic/claude-fable-5",
+      "expectedCanonicalSlug": "anthropic/claude-5-fable-20260609",
+      "harnessModel": "openrouter/anthropic/claude-fable-5",
+      "variant": "high",
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 3,
+      "slug": "google-gemini-3-1-pro-preview",
+      "company": "Google",
+      "model": "Gemini 3.1 Pro Preview",
+      "openRouterModelId": "google/gemini-3.1-pro-preview",
+      "expectedCanonicalSlug": "google/gemini-3.1-pro-preview-20260219",
+      "harnessModel": "openrouter/google/gemini-3.1-pro-preview",
+      "variant": "high",
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 4,
+      "slug": "xai-grok-4-5",
+      "company": "xAI / SpaceXAI",
+      "model": "Grok 4.5",
+      "openRouterModelId": "x-ai/grok-4.5",
+      "expectedCanonicalSlug": "x-ai/grok-4.5-20260708",
+      "harnessModel": "openrouter/x-ai/grok-4.5",
+      "variant": "high",
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 5,
+      "slug": "moonshot-kimi-k2-7-code",
+      "company": "Moonshot AI",
+      "model": "Kimi K2.7 Code",
+      "openRouterModelId": "moonshotai/kimi-k2.7-code",
+      "expectedCanonicalSlug": "moonshotai/kimi-k2.7-code-20260612",
+      "harnessModel": "openrouter/moonshotai/kimi-k2.7-code",
+      "variant": null,
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 6,
+      "slug": "deepseek-v4-pro",
+      "company": "DeepSeek",
+      "model": "DeepSeek V4 Pro",
+      "openRouterModelId": "deepseek/deepseek-v4-pro",
+      "expectedCanonicalSlug": "deepseek/deepseek-v4-pro-20260423",
+      "harnessModel": "openrouter/deepseek/deepseek-v4-pro",
+      "variant": "high",
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 7,
+      "slug": "zai-glm-5-2",
+      "company": "Z.ai / Zhipu AI",
+      "model": "GLM-5.2",
+      "openRouterModelId": "z-ai/glm-5.2",
+      "expectedCanonicalSlug": "z-ai/glm-5.2-20260616",
+      "harnessModel": "openrouter/z-ai/glm-5.2",
+      "variant": "high",
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 8,
+      "slug": "alibaba-qwen3-7-max",
+      "company": "Alibaba Cloud / Qwen",
+      "model": "Qwen3.7-Max",
+      "openRouterModelId": "qwen/qwen3.7-max",
+      "expectedCanonicalSlug": "qwen/qwen3.7-max-20260520",
+      "harnessModel": "openrouter/qwen/qwen3.7-max",
+      "variant": null,
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 9,
+      "slug": "minimax-m3",
+      "company": "MiniMax",
+      "model": "MiniMax-M3",
+      "openRouterModelId": "minimax/minimax-m3",
+      "expectedCanonicalSlug": "minimax/minimax-m3-20260531",
+      "harnessModel": "openrouter/minimax/minimax-m3",
+      "variant": null,
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 10,
+      "slug": "xiaomi-mimo-v2-5-pro",
+      "company": "Xiaomi MiMo",
+      "model": "MiMo-V2.5-Pro",
+      "openRouterModelId": "xiaomi/mimo-v2.5-pro",
+      "expectedCanonicalSlug": "xiaomi/mimo-v2.5-pro-20260422",
+      "harnessModel": "openrouter/xiaomi/mimo-v2.5-pro",
+      "variant": null,
+      "cohort": "primary",
+      "substitution": null
+    },
+    {
+      "order": 11,
+      "slug": "mistral-devstral-2",
+      "company": "Mistral AI",
+      "model": "Devstral 2 2512",
+      "openRouterModelId": "mistralai/devstral-2512",
+      "expectedCanonicalSlug": "mistralai/devstral-2512",
+      "harnessModel": "openrouter/mistralai/devstral-2512",
+      "variant": null,
+      "cohort": "former-reserve",
+      "substitution": null
+    },
+    {
+      "order": 12,
+      "slug": "stepfun-step-3-7-flash",
+      "company": "StepFun",
+      "model": "Step 3.7 Flash",
+      "openRouterModelId": "stepfun/step-3.7-flash",
+      "expectedCanonicalSlug": "stepfun/step-3.7-flash-20260528",
+      "harnessModel": "openrouter/stepfun/step-3.7-flash",
+      "variant": "high",
+      "cohort": "former-reserve",
+      "substitution": null
+    },
+    {
+      "order": 13,
+      "slug": "meta-llama-4-maverick",
+      "company": "Meta",
+      "model": "Llama 4 Maverick",
+      "openRouterModelId": "meta-llama/llama-4-maverick",
+      "expectedCanonicalSlug": "meta-llama/llama-4-maverick-17b-128e-instruct",
+      "harnessModel": "openrouter/meta-llama/llama-4-maverick",
+      "variant": null,
+      "cohort": "former-reserve",
+      "substitution": {
+        "replaces": "Muse Spark 1.1",
+        "reason": "Muse Spark 1.1 was not listed by the live OpenRouter Models API at the gateway freeze; Llama 4 Maverick is the strongest tool-capable Meta route currently listed."
+      }
+    },
+    {
+      "order": 14,
+      "slug": "nvidia-nemotron-3-ultra",
+      "company": "NVIDIA",
+      "model": "Nemotron 3 Ultra",
+      "openRouterModelId": "nvidia/nemotron-3-ultra-550b-a55b",
+      "expectedCanonicalSlug": "nvidia/nemotron-3-ultra-550b-a55b-20260604",
+      "harnessModel": "openrouter/nvidia/nemotron-3-ultra-550b-a55b",
+      "variant": "high",
+      "cohort": "former-reserve",
+      "substitution": null
+    }
   ]
 }

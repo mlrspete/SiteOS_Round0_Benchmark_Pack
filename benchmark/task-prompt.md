@@ -8,9 +8,9 @@ Required behaviours:
 
 1. Implement a responsive header with a keyboard-usable mobile menu.
 2. Implement the hero and service explorer using the supplied content and local assets.
-3. Service filters must update the visible cards and the `discipline` URL query parameter. Loading a supported query value must restore the filter.
-4. Selecting a service must reveal its supplied detail content in a clear detail region.
-5. Implement an accessible “Request a scope review” dialog and form. It must validate the required name, email, project type and a project summary of at least 20 characters. Valid submission must show the exact supplied success message; no network request is required.
+3. Service filters must update the visible cards and the `discipline` URL query parameter. Loading a supported query value must restore the filter; browser back/forward should restore it too.
+4. Selecting a service with its keyboard-focusable native button must reveal its supplied detail content in a clear detail region.
+5. Implement an accessible “Request a scope review” dialog and form. Use a native select for Project type. Validate the required name, email, project type and a project summary of at least 20 characters. Valid submission must show the exact supplied success message; no network request is required.
 6. Design explicitly for 360, 768 and 1440 CSS-pixel widths. Preserve long copy and provide an intentional fallback for the service whose image is absent.
 7. Add purposeful, restrained motion and respect `prefers-reduced-motion`.
 8. Preserve the evaluator hooks listed in `PRODUCT_CONTRACT.md`.
@@ -24,4 +24,3 @@ Constraints:
 - Complete the implementation, run `npm run check` and `npm run build`, fix issues you find, and record concise evidence in `PROGRESS.md`.
 
 Stop when the vertical slice is correct and polished. Do not expand it into a multi-page site.
-

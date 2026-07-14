@@ -10,6 +10,8 @@ runs/*/artifacts/*.jsonl
 test-results/
 artifacts/preflight-status.json
 artifacts/starter-calibration/
-artifacts/adapter-smoke-*/
+artifacts/adapter-preflight/
+artifacts/adapters/
+artifacts/round0-run-summary.json
 artifacts/blinding-map.json
-review-bundle/
+review-packets/

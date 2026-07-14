@@ -1,7 +1,6 @@
-import { readdir, stat } from 'node:fs/promises'
+import { stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { modelManifest, readJson, root } from './lib.mjs'
-import { writeFile } from 'node:fs/promises'
 
 const manifest = await modelManifest()
 const rows = []
@@ -10,28 +9,44 @@ for (const model of manifest.models) {
   const evaluationFile = path.join(root, 'runs', model.slug, 'artifacts', 'evaluation-summary.json')
   const record = await stat(recordFile).then(() => readJson(recordFile)).catch(() => null)
   const evaluation = await stat(evaluationFile).then(() => readJson(evaluationFile)).catch(() => null)
-  const total = evaluation?.totalScore
-  rows.push({ model, record, evaluation, total })
+  rows.push({ model, record, evaluation, total: evaluation?.totalScore })
 }
-
 rows.sort((a, b) => (b.total ?? -1) - (a.total ?? -1) || a.model.order - b.model.order)
-const generatedAt = new Date().toISOString()
+
+const completed = rows.filter((row) => row.total != null)
+const recordedCost = rows.reduce((sum, row) => sum + (Number(row.record?.reportedCostUsd) || 0), 0)
 const lines = [
   '# SiteOS Round 0 results',
   '',
-  `Generated: ${generatedAt}`,
+  `Generated: ${new Date().toISOString()}`,
   '',
-  '> A blank score means the model has not completed the frozen run and review. “Not testable” is preferable to silently substituting a model or harness.',
+  `Harness: OpenCode ${manifest.harness.version} pure mode through OpenRouter; ${manifest.harness.wallClockMinutes}-minute ceiling; one scored attempt per model.`,
   '',
-  '| Rank | Company | Model | Run status | Hard gate | Automated / 60 | Total / 100 |',
-  '|---:|---|---|---|---|---:|---:|',
+  `Scored runs: ${completed.length} / ${rows.length}. Recorded scored-run cost: $${recordedCost.toFixed(4)} USD (adapter probes excluded).`,
+  '',
+  '> A blank score means the model has not completed the frozen run and blind review. “Not testable” is preferable to silently substituting a route or harness.',
+  '',
+  '| Rank | Company | Model | Status | Gate | Auto /60 | Visual /20 | Code /10 | Verify /5 | Efficiency /5 | Minutes | Cost USD | Total /100 |',
+  '|---:|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|',
 ]
 let rank = 0
 for (const row of rows) {
   if (row.total != null) rank += 1
-  lines.push(`| ${row.total == null ? '—' : rank} | ${row.model.company} | ${row.model.model} | ${row.record?.status || 'not run'} | ${row.evaluation ? (row.evaluation.hardGatePassed ? 'pass' : 'fail') : '—'} | ${row.evaluation?.automatedScore ?? '—'} | ${row.total ?? '—'} |`)
+  const minutes = Number.isFinite(row.record?.elapsedMs) ? (row.record.elapsedMs / 60_000).toFixed(1) : '—'
+  const cost = Number.isFinite(row.record?.reportedCostUsd) ? row.record.reportedCostUsd.toFixed(4) : '—'
+  lines.push(`| ${row.total == null ? '—' : rank} | ${row.model.company} | ${row.model.model} | ${row.record?.status || 'not run'} | ${row.evaluation ? (row.evaluation.hardGatePassed ? 'pass' : 'fail') : '—'} | ${row.evaluation?.automatedScore ?? '—'} | ${row.evaluation?.manualVisualScore ?? '—'} | ${row.evaluation?.manualCodeScore ?? '—'} | ${row.evaluation?.verificationScore ?? '—'} | ${row.evaluation?.efficiencyScore ?? '—'} | ${minutes} | ${cost} | ${row.total ?? '—'} |`)
 }
-lines.push('', '## Advancement', '', 'Round 0 advancement is not decided until all testable models finish blind review. The top five eligible models plus any model within three points of fifth advance to three-run Round 1.', '')
+lines.push(
+  '',
+  '## Cohort disclosure',
+  '',
+  'Meta Muse Spark 1.1 was replaced before the freeze because it was absent from the live OpenRouter model catalogue. Meta Llama 4 Maverick is the disclosed Meta entrant; it is not presented as the same model.',
+  '',
+  '## Advancement',
+  '',
+  'Round 0 advancement is decided only after every testable model finishes blind review. The top five gate-eligible models plus any eligible model within three points of fifth advance to three-run Round 1. This breadth screen does not establish a universal coding-model champion.',
+  '',
+)
 
 const output = path.join(root, 'ROUND0_RESULTS.md')
 await writeFile(output, `${lines.join('\n')}\n`)

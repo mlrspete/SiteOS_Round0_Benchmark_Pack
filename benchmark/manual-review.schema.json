@@ -1,15 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "SiteOS Round 0 adjudicated manual score",
+  "title": "SiteOS Round 0 independent blind review",
   "type": "object",
-  "required": ["modelSlug", "visual", "code", "verification", "efficiency", "reviewers"],
+  "additionalProperties": false,
+  "required": ["candidateCode", "reviewer", "reviewedAt", "visual", "code", "confidence", "notes"],
   "properties": {
-    "modelSlug": {"type": "string"},
+    "candidateCode": {"type": "string", "pattern": "^C-[0-9]{4}$"},
+    "reviewer": {"type": "string", "minLength": 1},
+    "reviewedAt": {"type": "string", "format": "date-time"},
     "visual": {"type": "number", "minimum": 0, "maximum": 20},
     "code": {"type": "number", "minimum": 0, "maximum": 10},
-    "verification": {"type": "number", "minimum": 0, "maximum": 5},
-    "efficiency": {"type": "number", "minimum": 0, "maximum": 5},
-    "reviewers": {"type": "array", "minItems": 2, "items": {"type": "string"}},
-    "adjudicationNotes": {"type": "string"}
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "notes": {"type": "string"}
   }
 }

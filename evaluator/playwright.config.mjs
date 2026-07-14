@@ -1,7 +1,9 @@
 import { defineConfig } from '@playwright/test'
-import chromium from '@sparticuz/chromium'
 
-const executablePath = process.env.PLAYWRIGHT_EXECUTABLE_PATH || await chromium.executablePath()
+if (!process.env.PLAYWRIGHT_EXECUTABLE_PATH) {
+  throw new Error('Run the evaluator through scripts/evaluate-run.mjs so its pinned Chromium runtime is prepared.')
+}
+const chromiumArgs = JSON.parse(process.env.SITEOS_CHROMIUM_ARGS || '[]')
 
 export default defineConfig({
   testDir: './tests',
@@ -17,8 +19,8 @@ export default defineConfig({
     actionTimeout: 7_000,
     navigationTimeout: 15_000,
     launchOptions: {
-      executablePath,
-      args: chromium.args,
+      executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH,
+      args: chromiumArgs,
     },
   },
 })

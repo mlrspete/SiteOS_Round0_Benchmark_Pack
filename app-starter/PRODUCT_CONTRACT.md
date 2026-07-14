@@ -31,10 +31,10 @@ Typography must use a system stack because external fonts are prohibited. Choose
 
 ## Interaction contract
 
-- Filters: `All`, `Electrical`, `Controls`, `Reliability`. The active discipline must be represented by `?discipline=all|electrical|controls|reliability`. An absent/unsupported value resolves to `all`. Browser back/forward must restore the visible filter.
-- Service selection: choosing a service reveals its description, deliverables and response note in a clearly labelled detail region. It must be operable with a keyboard.
+- Filters: `All`, `Electrical`, `Controls`, `Reliability`. The active discipline must be represented by `?discipline=all|electrical|controls|reliability`. An absent/unsupported value resolves to `all`. Browser back/forward should restore the visible filter; this is scored separately from the core filter journey.
+- Service selection: each service exposes a keyboard-focusable native button. Activating it reveals its description, deliverables and response note in a clearly labelled detail region.
 - Dialog: the header/hero/closing primary actions open one accessible modal titled `Request a scope review`. Escape closes it, focus starts inside it, keyboard focus cannot fall behind it, and focus returns to the opener.
-- Form fields use the visible labels `Name`, `Work email`, `Project type` and `Project summary`. All are required; email must be valid; summary must contain at least 20 non-whitespace characters. Invalid submission displays understandable field-linked errors. The submit control is labelled `Submit request`. Valid submission makes no network request and shows exactly: `Thanks — a scope engineer will reply within one business day.`
+- Form fields use the visible labels `Name`, `Work email`, `Project type` and `Project summary`. Use a native `<select>` for Project type. All fields are required; email must be valid; summary must contain at least 20 non-whitespace characters. Invalid submission displays understandable field-linked errors. The submit control is labelled `Submit request`. Valid submission makes no network request and shows exactly: `Thanks — a scope engineer will reply within one business day.`
 - Motion: include a restrained entrance/orientation treatment and meaningful state transitions. With reduced motion requested, non-essential animation must effectively disappear.
 
 ## Resilience fixtures

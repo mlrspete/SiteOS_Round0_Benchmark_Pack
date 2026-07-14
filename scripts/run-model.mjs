@@ -1,11 +1,15 @@
 import path from 'node:path'
-import { readFile, readdir, stat, writeFile } from 'node:fs/promises'
+import { readFile, stat, writeFile } from 'node:fs/promises'
 import {
+  adapterIsVerified,
   benchmarkDir,
+  extractEventFacts,
   getModel,
   isolatedOpenCodeEnv,
   parseArgs,
+  readAdapterStatus,
   readJson,
+  recordedSpendUsd,
   root,
   runProcess,
   writeJson,
@@ -13,24 +17,19 @@ import {
 
 const args = parseArgs()
 if (!args.model) throw new Error('Usage: npm run run:model -- --model <slug> --confirm-paid')
+if (!args['confirm-paid']) throw new Error('Paid inference requires --confirm-paid')
+if (!process.env.OPENROUTER_API_KEY) throw new Error('Missing OPENROUTER_API_KEY; keep credentials outside the repository.')
 const { manifest, model } = await getModel(args.model)
-if (model.adapterStatus !== 'verified') throw new Error(`${model.slug} adapter is ${model.adapterStatus}; a scored run requires three successful preflight probes and adapterStatus=verified.`)
-if (!model.harnessModel) throw new Error(`${model.slug} has no validated harnessModel. Complete adapter preflight and freeze the exact ID first.`)
-if (model.credentialEnv && !process.env[model.credentialEnv]) throw new Error(`Missing ${model.credentialEnv}; do not paste secrets into the repository or chat.`)
-if (model.credentialEnv && !args['confirm-paid']) throw new Error('Paid inference requires --confirm-paid')
-const budget = Number(process.env.SITEOS_TOTAL_BUDGET_USD)
-if (model.credentialEnv && (!Number.isFinite(budget) || budget <= 0)) throw new Error('Set a positive SITEOS_TOTAL_BUDGET_USD before paid inference.')
-const perRunBudget = Number(process.env.SITEOS_PER_RUN_BUDGET_USD)
-if (model.credentialEnv && (!Number.isFinite(perRunBudget) || perRunBudget <= 0)) throw new Error('Set a positive SITEOS_PER_RUN_BUDGET_USD before paid inference.')
+const adapter = await readAdapterStatus(model.slug)
+if (!adapterIsVerified(model, adapter)) throw new Error(`${model.slug} requires a current successful three-probe adapter record.`)
 
-let priorSpend = 0
-for (const entry of await readdir(path.join(root, 'runs'), { withFileTypes: true }).catch(() => [])) {
-  if (!entry.isDirectory()) continue
-  const prior = await readJson(path.join(root, 'runs', entry.name, 'artifacts', 'run-record.json')).catch(() => null)
-  if (Number.isFinite(prior?.reportedCostUsd)) priorSpend += prior.reportedCostUsd
-}
-if (model.credentialEnv && priorSpend >= budget) throw new Error(`Total benchmark budget exhausted: $${priorSpend.toFixed(4)} of $${budget.toFixed(2)} recorded.`)
-const effectiveRunBudget = model.credentialEnv ? Math.min(perRunBudget, budget - priorSpend) : Infinity
+const totalBudget = Number(process.env.SITEOS_TOTAL_BUDGET_USD)
+const perRunBudget = Number(process.env.SITEOS_PER_RUN_BUDGET_USD)
+if (!Number.isFinite(totalBudget) || totalBudget <= 0) throw new Error('Set a positive SITEOS_TOTAL_BUDGET_USD.')
+if (!Number.isFinite(perRunBudget) || perRunBudget <= 0) throw new Error('Set a positive SITEOS_PER_RUN_BUDGET_USD.')
+const priorSpend = await recordedSpendUsd()
+if (priorSpend >= totalBudget) throw new Error(`Total benchmark budget exhausted: $${priorSpend.toFixed(4)} of $${totalBudget.toFixed(2)} recorded.`)
+const effectiveRunBudget = Math.min(perRunBudget, totalBudget - priorSpend)
 
 const runRoot = path.join(root, 'runs', model.slug)
 const worktree = path.join(runRoot, 'worktree')
@@ -47,12 +46,8 @@ await writeJson(recordFile, record)
 const prompt = await readFile(path.join(benchmarkDir, 'task-prompt.md'), 'utf8')
 const opencode = path.join(root, 'node_modules', '.bin', 'opencode')
 const commandArgs = [
-  'run',
-  '--pure',
-  '--format', 'json',
-  '--model', model.harnessModel,
-  '--dir', worktree,
-  '--title', `SiteOS Round 0 — ${model.slug}`,
+  'run', '--pure', '--format', 'json', '--model', model.harnessModel,
+  '--dir', worktree, '--title', `SiteOS Round 0 — ${record.candidateCode}`,
 ]
 if (model.variant) commandArgs.push('--variant', model.variant)
 commandArgs.push(prompt)
@@ -61,19 +56,16 @@ const eventsFile = path.join(artifacts, 'session-events.jsonl')
 const stderrFile = path.join(artifacts, 'agent-stderr.log')
 let eventBuffer = ''
 let observedCost = 0
-let inputTokens = 0
-let outputTokens = 0
-let cachedTokens = 0
 let budgetStopped = false
-const ingestEvent = (line) => {
+const ingestEvent = (line, child) => {
   if (!line.trim()) return
   try {
     const event = JSON.parse(line)
-    if (event.type !== 'step_finish') return
-    observedCost += Number(event.part?.cost || 0)
-    inputTokens += Number(event.part?.tokens?.input || 0)
-    outputTokens += Number(event.part?.tokens?.output || 0)
-    cachedTokens += Number(event.part?.tokens?.cache?.read || 0)
+    if (event.type === 'step_finish') observedCost += Number(event.part?.cost || 0)
+    if (!budgetStopped && observedCost > effectiveRunBudget) {
+      budgetStopped = true
+      child?.kill('SIGTERM')
+    }
   } catch {}
 }
 const result = await runProcess(opencode, commandArgs, {
@@ -84,27 +76,44 @@ const result = await runProcess(opencode, commandArgs, {
     eventBuffer += chunk.toString()
     const lines = eventBuffer.split('\n')
     eventBuffer = lines.pop() || ''
-    for (const line of lines) ingestEvent(line)
-    if (!budgetStopped && observedCost > effectiveRunBudget) {
-      budgetStopped = true
-      child.kill('SIGTERM')
-    }
+    for (const line of lines) ingestEvent(line, child)
   },
 })
 ingestEvent(eventBuffer)
 await writeFile(eventsFile, result.stdout)
 await writeFile(stderrFile, result.stderr)
 
+const facts = extractEventFacts(result.stdout)
+const normalizedIds = facts.resolvedModelIds.map((value) => value.replace(/^openrouter\//, ''))
+const allowedIds = new Set([model.openRouterModelId, model.expectedCanonicalSlug])
+const providerPrefix = model.openRouterModelId.split('/')[0]
+const contradictoryIds = normalizedIds.filter((value) => value.startsWith(`${providerPrefix}/`) && !allowedIds.has(value))
+
 record.finishedAt = new Date().toISOString()
 record.elapsedMs = result.elapsedMs
 record.exitCode = result.code
-record.inputTokens = inputTokens || null
-record.outputTokens = outputTokens || null
-record.cachedTokens = cachedTokens || null
-record.reportedCostUsd = observedCost
-record.status = budgetStopped ? 'failed' : result.timedOut ? 'timed-out' : result.code === 0 ? 'completed' : 'failed'
+record.inputTokens = facts.inputTokens || null
+record.outputTokens = facts.outputTokens || null
+record.cachedTokens = facts.cachedTokens || null
+record.reportedCostUsd = facts.cost
+record.providerRequestId = facts.providerRequestIds[0] || null
+record.resolvedModelId = normalizedIds.find((value) => allowedIds.has(value)) || model.openRouterModelId
+record.resolvedCanonicalSlug = model.expectedCanonicalSlug
+record.routerMetadata = facts.routerMetadata
+record.commandsObserved = facts.commands
+record.toolNamesObserved = facts.toolNames
+record.status = budgetStopped ? 'failed' : result.timedOut ? 'timed-out' : contradictoryIds.length ? 'invalid' : result.code === 0 ? 'completed' : 'failed'
 if (budgetStopped) record.notes.push(`Runner stopped after reported session cost exceeded the effective $${effectiveRunBudget.toFixed(2)} ceiling.`)
-if (model.credentialEnv && observedCost === 0) record.notes.push('Provider cost telemetry reported zero; invalidate the run unless authenticated billing evidence confirms zero cost.')
+if (contradictoryIds.length) record.notes.push(`Observed contradictory routed model identities: ${contradictoryIds.join(', ')}`)
+if (facts.cost === 0) record.notes.push('Gateway telemetry reported zero cost; verify the OpenRouter activity record before treating this run as valid.')
+if (!facts.providerRequestIds.length) record.notes.push('No provider request ID was exposed by the harness; retain session events and OpenRouter activity metadata for audit.')
 await writeJson(recordFile, record)
-console.log(JSON.stringify({ model: model.slug, status: record.status, elapsedMs: record.elapsedMs, exitCode: record.exitCode }, null, 2))
+console.log(JSON.stringify({
+  model: model.slug,
+  candidateCode: record.candidateCode,
+  status: record.status,
+  elapsedMs: record.elapsedMs,
+  reportedCostUsd: record.reportedCostUsd,
+  exitCode: record.exitCode,
+}, null, 2))
 if (record.status !== 'completed') process.exitCode = 1
